@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caesar Cipher by @ciphermalware</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        h1 span {
+            font-size: 18px;
+            font-weight: normal;
+        }
+        h2 {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        h3 {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        textarea, input {
+            margin: 8px 0;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        input[type="number"] {
+            width: 80px;
+        }
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        input[type="range"] {
+            flex-grow: 1;
+        }
+        .result {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 3px;
+            min-height: 20px;
+            word-break: break-all;
+        }
+        button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        button:hover {
+            background-color: #3b78e7;
+        }
+        .brute-force-results {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: white;
+            margin-top: 10px;
+        }
+        .result-item {
+            padding: 5px;
+            margin-bottom: 2px;
+        }
+        .original {
+            background-color: #d4edda;
+        }
+        .edge-cases {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        @media (max-width: 600px) {
+            .edge-cases {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Caesar Cipher <span>by @ciphermalware</span></h1>
+    
+    <div class="container">
+        <h2>Encryption</h2>
+        <div>
+            <label for="plaintext">Plaintext:</label>
+            <textarea id="plaintext" rows="3">Hello, World! This is a secret message.</textarea>
+        </div>
+        
+        <div>
+            <label for="shift">Shift Value:</label>
+            <div class="input-row">
+                <input type="range" id="shift" min="-25" max="25" value="3">
+                <input type="number" id="shift-number" value="3" min="-25" max="25">
+            </div>
+        </div>
+        
+        <div>
+            <label for="encrypted">Encrypted Result:</label>
+            <div id="encrypted" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>Decryption</h2>
+        <div>
+            <label for="decrypted">Decrypted with Known Key:</label>
+            <div id="decrypted" class="result"></div>
+        </div>
+        
+        <div>
+            <h3>Brute Force Results:</h3>
+            <button id="toggle-results">Show All Results</button>
+            <div id="brute-force-results" class="brute-force-results" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>Test Edge Cases</h2>
+        <div class="edge-cases">
+            <button class="edge-case" data-text="Hello, Привет, こんにちは, 你好!" data-shift="3">Non-English Characters</button>
+            <button class="edge-case" data-text="Password123!@#" data-shift="3">Numbers and Symbols</button>
+            <button class="edge-case" data-text="" data-shift="3">Empty String</button>
+            <button class="edge-case" data-text="Test" data-shift="1000">Very Large Shift (1000)</button>
+            <button class="edge-case" data-text="Test" data-shift="-7">Negative Shift (-7)</button>
+        </div>
+    </div>
+
+    <script>
+        // Caesar encryption function
+        function caesarEncrypt(text, shiftAmount) {
+            let result = "";
+            
+            shiftAmount = shiftAmount % 26;
+            
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+               
+                if ('A' <= char && char <= 'Z') {
+                    
+                    let shiftedCharCode = (char.charCodeAt(0) - 'A'.charCodeAt(0) + shiftAmount) % 26 + 'A'.charCodeAt(0);
+                   
+                    result += String.fromCharCode(shiftedCharCode);
+                }
+                
+                else if ('a' <= char && char <= 'z') {
+                    
+                    let shiftedCharCode = (char.charCodeAt(0) - 'a'.charCodeAt(0) + shiftAmount) % 26 + 'a'.charCodeAt(0);
+                    result += String.fromCharCode(shiftedCharCode);
+                }
+                
+                else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        // Brute force decryption
+        function caesarDecryptBruteForce(ciphertext) {
+            let possibleDecryptions = [];
+            
+            for (let shiftAttempt = 1; shiftAttempt < 26; shiftAttempt++) {
+               
+                let decryptedText = caesarEncrypt(ciphertext, 26 - shiftAttempt);
+                possibleDecryptions.push({ shift: shiftAttempt, text: decryptedText });
+            }
+            return possibleDecryptions;
+        }
+
+       
+        const plaintextEl = document.getElementById('plaintext');
+        const shiftEl = document.getElementById('shift');
+        const shiftNumberEl = document.getElementById('shift-number');
+        const encryptedEl = document.getElementById('encrypted');
+        const decryptedEl = document.getElementById('decrypted');
+        const bruteForceResultsEl = document.getElementById('brute-force-results');
+        const toggleResultsBtn = document.getElementById('toggle-results');
+        const edgeCaseButtons = document.querySelectorAll('.edge-case');
+
+        // Update function
+        function updateResults() {
+            const plaintext = plaintextEl.value;
+            const shift = parseInt(shiftEl.value);
+            
+            // Update shift display
+            shiftNumberEl.value = shift;
+            
+            // Encrypt
+            const encrypted = caesarEncrypt(plaintext, shift);
+            encryptedEl.textContent = encrypted;
+            
+            // Decrypt with known key
+            const decrypted = caesarEncrypt(encrypted, -shift);
+            decryptedEl.textContent = decrypted;
+            
+            // Brute force
+            const bruteForceResults = caesarDecryptBruteForce(encrypted);
+            bruteForceResultsEl.innerHTML = "";
+            
+            const originalText = plaintext;
+            bruteForceResults.forEach(result => {
+                const resultEl = document.createElement('div');
+                resultEl.className = `result-item ${result.text === originalText ? 'original' : ''}`;
+                resultEl.innerHTML = `<span style="font-family: monospace;">Shift ${result.shift.toString().padStart(2, ' ')}: </span>${result.text}`;
+                
+                if (result.text === originalText) {
+                    resultEl.innerHTML += ' <span style="color: green; font-weight: bold;">← Original</span>';
+                }
+                
+                bruteForceResultsEl.appendChild(resultEl);
+            });
+        }
+
+        // Add event listeners
+        plaintextEl.addEventListener('input', updateResults);
+        
+        shiftEl.addEventListener('input', function() {
+            shiftNumberEl.value = this.value;
+            updateResults();
+        });
+        
+        shiftNumberEl.addEventListener('input', function() {
+            shiftEl.value = this.value;
+            updateResults();
+        });
+
+        toggleResultsBtn.addEventListener('click', function() {
+            const isHidden = bruteForceResultsEl.style.display === 'none';
+            bruteForceResultsEl.style.display = isHidden ? 'block' : 'none';
+            this.textContent = isHidden ? 'Hide Results' : 'Show All Results';
+        });
+
+        edgeCaseButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                plaintextEl.value = this.getAttribute('data-text');
+                const newShift = this.getAttribute('data-shift');
+                shiftEl.value = newShift;
+                shiftNumberEl.value = newShift;
+                updateResults();
+            });
+        });
+
+        // Initialize
+        updateResults();
+    </script>
+</body>
+</html>
