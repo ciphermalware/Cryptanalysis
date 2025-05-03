@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vigenère Cipher Breaker by @ciphermalware</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        h1 span {
+            font-size: 18px;
+            font-weight: normal;
+        }
+        h2 {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        h3 {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        textarea, input {
+            margin: 8px 0;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .result {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 3px;
+            min-height: 20px;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        button:hover {
+            background-color: #3b78e7;
+        }
+        .chart-container {
+            height: 200px;
+            margin: 15px 0;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        .bar {
+            display: inline-block;
+            background-color: #4285f4;
+            margin-right: 2px;
+            position: relative;
+        }
+        .bar-label {
+            position: absolute;
+            bottom: -20px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        .key-candidate {
+            margin-bottom: 5px;
+            padding: 5px;
+            background-color: #e9f5ff;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .key-candidate:hover {
+            background-color: #d0e8ff;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .key-length-option {
+            display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            background-color: #e9e9e9;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .key-length-option:hover, .key-length-option.selected {
+            background-color: #4285f4;
+            color: white;
+        }
+        .decrypted-preview {
+            font-family: monospace;
+        }
+        #analysis-section {
+            display: none;
+        }
+        #frequency-charts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .freq-chart {
+            flex: 1 1 45%;
+            min-width: 300px;
+            margin-bottom: 20px;
+        }
+        .freq-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .decryption-result {
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .edge-cases {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .edge-case {
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            .edge-cases {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Vigenère Cipher Breaker <span>by @ciphermalware</span></h1>
+    
+    <div class="container">
+        <h2>Encryption/Decryption</h2>
+        <div>
+            <label for="plaintext">Text:</label>
+            <textarea id="plaintext" rows="3">Hello World, I just broke the Vigenere Cipher</textarea>
+        </div>
+        
+        <div>
+            <label for="key">Vigenère Key:</label>
+            <input type="text" id="key" value="SECRET">
+            <p><small>Key will be converted to uppercase A-Z only</small></p>
+        </div>
+        
+        <div>
+            <button id="encrypt-btn">Encrypt</button>
+            <button id="decrypt-btn">Decrypt with Known Key</button>
+        </div>
+        
+        <div>
+            <label for="encrypted">Result:</label>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>Cipher Breaking</h2>
+        <div>
+            <label for="ciphertext">Ciphertext to Break:</label>
+            <textarea id="ciphertext" rows="4"></textarea>
+        </div>
+        
+        <button id="break-cipher-btn">Break Cipher</button>
+        
+        <div id="breaking-status" class="loading" style="display: none;">Analyzing ciphertext...</div>
+        
+        <div id="analysis-section">
+            <h3>Key Length Analysis</h3>
+            <p>Potential key lengths (by Index of Coincidence):</p>
+            <div id="key-lengths"></div>
+            
+            <div id="key-length-details">
+                <h3>Frequency Analysis</h3>
+                <p>Select a key length to see frequency analysis:</p>
+                <div id="frequency-charts"></div>
+                
+                <h3>Key Candidates</h3>
+                <div id="key-candidates"></div>
+                
+                <h3>Decryption Results</h3>
+                <div id="decryption-results"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>Test Examples</h2>
+        <div class="edge-cases">
+            <button class="edge-case" data-text="ATTACKATDAWN" data-key="LEMON">Short Message (LEMON key)</button>
+            <button class="edge-case" data-text="THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG" data-key="VIGENERE">English Pangram (VIGENERE key)</button>
+            <button class="edge-case" data-text="THERAININSPAINFALLSMAINLYONTHEPLAIN" data-key="SECRET">Common Phrase (SECRET key)</button>
+            <button class="edge-case" data-text="TODAYISABEAUTIFULDAYTOLEARNABOUTCRYPTOGRAPHY" data-key="CRYPTO">Medium Text (CRYPTO key)</button>
+            <button class="edge-case" data-text="WEAREDISCOVEREDSAVEYOURSELFWEMEETATDAWN" data-key="KING">Famous Example (KING key)</button>
+        </div>
+    </div>
+
+    <script>
+        function preprocessKey(key) {
+            return key.toUpperCase().replace(/[^A-Z]/g, '');
+        }
+        
+        function encryptVigenere(plaintext, key) {
+            if (!key) return plaintext;
+            
+            const processedKey = preprocessKey(key);
+            if (processedKey.length === 0) return plaintext;
+            
+            let result = "";
+            let keyIndex = 0;
+            
+            for (let i = 0; i < plaintext.length; i++) {
+                const char = plaintext[i];
+                
+                if (/[A-Z]/.test(char)) {
+                    const plainChar = char.charCodeAt(0) - 65;
+                    const keyChar = processedKey[keyIndex % processedKey.length].charCodeAt(0) - 65;
+                    const encryptedChar = String.fromCharCode(((plainChar + keyChar) % 26) + 65);
+                    result += encryptedChar;
+                    keyIndex++;
+                } else if (/[a-z]/.test(char)) {
+                    const plainChar = char.charCodeAt(0) - 97;
+                    const keyChar = processedKey[keyIndex % processedKey.length].charCodeAt(0) - 65;
+                    const encryptedChar = String.fromCharCode(((plainChar + keyChar) % 26) + 97);
+                    result += encryptedChar;
+                    keyIndex++;
+                } else {
+                    result += char;
+                }
+            }
+            
+            return result;
+        }
+        
+        function decryptVigenere(ciphertext, key) {
+            if (!key) return ciphertext;
+            
+            const processedKey = preprocessKey(key);
+            if (processedKey.length === 0) return ciphertext;
+            
+            let result = "";
+            let keyIndex = 0;
+            
+            for (let i = 0; i < ciphertext.length; i++) {
+                const char = ciphertext[i];
+                
+                if (/[A-Z]/.test(char)) {
+                    const cipherChar = char.charCodeAt(0) - 65;
+                    const keyChar = processedKey[keyIndex % processedKey.length].charCodeAt(0) - 65;
+                    const decryptedChar = String.fromCharCode(((cipherChar - keyChar + 26) % 26) + 65);
+                    result += decryptedChar;
+                    keyIndex++;
+                } else if (/[a-z]/.test(char)) {
+                    const cipherChar = char.charCodeAt(0) - 97;
+                    const keyChar = processedKey[keyIndex % processedKey.length].charCodeAt(0) - 65;
+                    const decryptedChar = String.fromCharCode(((cipherChar - keyChar + 26) % 26) + 97);
+                    result += decryptedChar;
+                    keyIndex++;
+                } else {
+                    result += char;
+                }
+            }
+            
+            return result;
+        }
+        
+        function calculateIC(text) {
+            const cleanText = text.toUpperCase().replace(/[^A-Z]/g, '');
+            
+            const freqs = {};
+            for (let i = 0; i < cleanText.length; i++) {
+                const char = cleanText[i];
+                freqs[char] = (freqs[char] || 0) + 1;
+            }
+            
+            let sum = 0;
+            const n = cleanText.length;
+            
+            for (const char in freqs) {
+                const count = freqs[char];
+                sum += count * (count - 1);
+            }
+            
+            return sum / (n * (n - 1)) * 26;
+        }
+        
+        function findKeyLength(ciphertext, maxLength = 15) {
+            const cleanText = ciphertext.toUpperCase().replace(/[^A-Z]/g, '');
+            const results = [];
+            
+            for (let keyLength = 1; keyLength <= maxLength; keyLength++) {
+                const sequences = [];
+                
+                for (let i = 0; i < keyLength; i++) {
+                    let sequence = "";
+                    for (let j = i; j < cleanText.length; j += keyLength) {
+                        sequence += cleanText[j];
+                    }
+                    sequences.push(sequence);
+                }
+                
+                let avgIC = 0;
+                for (const seq of sequences) {
+                    avgIC += calculateIC(seq);
+                }
+                avgIC /= keyLength;
+                
+                results.push({ keyLength, avgIC });
+            }
+            
+            results.sort((a, b) => b.avgIC - a.avgIC);
+            
+            return results;
+        }
+        
+        function getFrequencies(text) {
+            const cleanText = text.toUpperCase().replace(/[^A-Z]/g, '');
+            const freqs = {};
+            
+            for (let i = 65; i <= 90; i++) {
+                freqs[String.fromCharCode(i)] = 0;
+            }
+            
+            for (let i = 0; i < cleanText.length; i++) {
+                freqs[cleanText[i]]++;
+            }
+            
+            const total = cleanText.length;
+            for (const char in freqs) {
+                freqs[char] = freqs[char] / total;
+            }
+            
+            return freqs;
+        }
+        
+        function getColumnFrequencies(ciphertext, keyLength) {
+            const cleanText = ciphertext.toUpperCase().replace(/[^A-Z]/g, '');
+            const columns = [];
+            
+            for (let i = 0; i < keyLength; i++) {
+                let column = "";
+                for (let j = i; j < cleanText.length; j += keyLength) {
+                    column += cleanText[j];
+                }
+                columns.push(column);
+            }
+            
+            return columns.map(col => getFrequencies(col));
+        }
+        
+        const englishFreqs = {
+            'E': 0.12702, 'T': 0.09056, 'A': 0.08167, 'O': 0.07507, 'I': 0.06966,
+            'N': 0.06749, 'S': 0.06327, 'H': 0.06094, 'R': 0.05987, 'D': 0.04253,
+            'L': 0.04025, 'C': 0.02782, 'U': 0.02758, 'M': 0.02406, 'W': 0.02360,
+            'F': 0.02228, 'G': 0.02015, 'Y': 0.01974, 'P': 0.01929, 'B': 0.01492,
+            'V': 0.00978, 'K': 0.00772, 'J': 0.00153, 'X': 0.00150, 'Q': 0.00095,
+            'Z': 0.00074
+        };
+        
+        function shiftFrequencies(freqs, shift) {
+            const result = {};
+            
+            for (let i = 65; i <= 90; i++) {
+                const char = String.fromCharCode(i);
+                const shiftedChar = String.fromCharCode(((i - 65 + shift) % 26) + 65);
+                result[char] = freqs[shiftedChar];
+            }
+            
+            return result;
+        }
+        
+        function calculateChiSquared(observed, expected) {
+            let chiSquared = 0;
+            
+            for (const char in observed) {
+                const o = observed[char];
+                const e = expected[char];
+                chiSquared += ((o - e) ** 2) / e;
+            }
+            
+            return chiSquared;
+        }
+        
+        function guessKeyChar(columnFreqs) {
+            const shifts = [];
+            
+            for (let shift = 0; shift < 26; shift++) {
+                const shiftedEnglish = shiftFrequencies(englishFreqs, shift);
+                const chiSquared = calculateChiSquared(columnFreqs, shiftedEnglish);
+                shifts.push({ shift, chiSquared });
+            }
+            
+            shifts.sort((a, b) => a.chiSquared - b.chiSquared);
+            
+            return String.fromCharCode(((26 - shifts[0].shift) % 26) + 65);
+        }
+        
+        function guessKey(ciphertext, keyLength) {
+            const columnFreqs = getColumnFrequencies(ciphertext, keyLength);
+            let key = "";
+            
+            for (let i = 0; i < keyLength; i++) {
+                key += guessKeyChar(columnFreqs[i]);
+            }
+            
+            return key;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const plaintextEl = document.getElementById('plaintext');
+            const keyEl = document.getElementById('key');
+            const resultEl = document.getElementById('result');
+            const encryptBtn = document.getElementById('encrypt-btn');
+            const decryptBtn = document.getElementById('decrypt-btn');
+            const ciphertextEl = document.getElementById('ciphertext');
+            const breakCipherBtn = document.getElementById('break-cipher-btn');
+            const breakingStatusEl = document.getElementById('breaking-status');
+            const analysisSection = document.getElementById('analysis-section');
+            const keyLengthsEl = document.getElementById('key-lengths');
+            const frequencyChartsEl = document.getElementById('frequency-charts');
+            const keyCandidatesEl = document.getElementById('key-candidates');
+            const decryptionResultsEl = document.getElementById('decryption-results');
+            const edgeCases = document.querySelectorAll('.edge-case');
+            
+            encryptBtn.addEventListener('click', function() {
+                const plaintext = plaintextEl.value;
+                const key = keyEl.value;
+                const encrypted = encryptVigenere(plaintext, key);
+                resultEl.textContent = encrypted;
+                ciphertextEl.value = encrypted;
+            });
+            
+            decryptBtn.addEventListener('click', function() {
+                const ciphertext = plaintextEl.value;
+                const key = keyEl.value;
+                const decrypted = decryptVigenere(ciphertext, key);
+                resultEl.textContent = decrypted;
+            });
+            
+            breakCipherBtn.addEventListener('click', function() {
+                const ciphertext = ciphertextEl.value;
+                if (!ciphertext.trim()) return;
+                
+                breakingStatusEl.style.display = 'block';
+                analysisSection.style.display = 'none';
+                
+                keyLengthsEl.innerHTML = '';
+                frequencyChartsEl.innerHTML = '';
+                keyCandidatesEl.innerHTML = '';
+                decryptionResultsEl.innerHTML = '';
+                
+                setTimeout(function() {
+                    const keyLengthResults = findKeyLength(ciphertext);
+                    
+                    keyLengthResults.slice(0, 5).forEach(result => {
+                        const el = document.createElement('div');
+                        el.className = 'key-length-option';
+                        el.textContent = `Length ${result.keyLength} (IC: ${result.avgIC.toFixed(2)})`;
+                        el.dataset.length = result.keyLength;
+                        keyLengthsEl.appendChild(el);
+                    });
+                    
+                    const keyLengthOptions = document.querySelectorAll('.key-length-option');
+                    keyLengthOptions.forEach(option => {
+                        option.addEventListener('click', function() {
+                            keyLengthOptions.forEach(opt => opt.classList.remove('selected'));
+                            this.classList.add('selected');
+                            
+                            const keyLength = parseInt(this.dataset.length);
+                            
+                            frequencyChartsEl.innerHTML = '';
+                            keyCandidatesEl.innerHTML = '';
+                            decryptionResultsEl.innerHTML = '';
+                            
+                            const columnFreqs = getColumnFrequencies(ciphertext, keyLength);
+                            
+                            columnFreqs.forEach((freqs, index) => {
+                                const chartDiv = document.createElement('div');
+                                chartDiv.className = 'freq-chart';
+                                
+                                const title = document.createElement('div');
+                                title.className = 'freq-title';
+                                title.textContent = `Column ${index+1} Frequencies`;
+                                chartDiv.appendChild(title);
+                                
+                                const chartContainer = document.createElement('div');
+                                chartContainer.className = 'chart-container';
+                                
+                                for (let i = 65; i <= 90; i++) {
+                                    const char = String.fromCharCode(i);
+                                    const freq = freqs[char] || 0;
+                                    
+                                    const bar = document.createElement('div');
+                                    bar.className = 'bar';
+                                    bar.style.height = `${freq * 500}px`;
+                                    bar.style.width = '10px';
+                                    
+                                    const label = document.createElement('div');
+                                    label.className = 'bar-label';
+                                    label.textContent = char;
+                                    
+                                    bar.appendChild(label);
+                                    chartContainer.appendChild(bar);
+                                }
+                                
+                                chartDiv.appendChild(chartContainer);
+                                frequencyChartsEl.appendChild(chartDiv);
+                            });
+                            
+                            const guessedKey = guessKey(ciphertext, keyLength);
+                            
+                            const keyEl = document.createElement('div');
+                            keyEl.className = 'key-candidate';
+                            keyEl.textContent = `Guessed key: ${guessedKey}`;
+                            keyEl.dataset.key = guessedKey;
+                            keyCandidatesEl.appendChild(keyEl);
+                            
+                            const decrypted = decryptVigenere(ciphertext, guessedKey);
+                            const decryptedEl = document.createElement('div');
+                            decryptedEl.className = 'decryption-result';
+                            
+                            const decryptedTitle = document.createElement('h4');
+                            decryptedTitle.textContent = `Decrypte
+</body>
+</html>
