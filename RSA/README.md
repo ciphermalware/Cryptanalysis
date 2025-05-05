@@ -1,7 +1,3 @@
-# RSA Attack by ciphermalware
-
-Hello world. This is a little project that shows how RSA encryption can be broken when it's not implemented correctly. Nothing malicious here - just educational stuff to understand cryptography better.
-
 ## What's This All About?
 
 RSA is one of those super popular encryption algorithms that keeps our data safe online. But when it's not set up properly, like using keys that are too small, it can be cracked
