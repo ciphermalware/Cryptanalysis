@@ -8,7 +8,7 @@ This repo includes:
 * **vigenere_cipher_breaker.html**: An interactive web tool visualizing the breaking process
 * **example_texts.txt**: Sample encrypted messages to practice cracking
 
-## The Breaking Methods
+## The breaking methods
 This project demonstrates 2 main techniques for breaking Vigenère ciphers:
 
 1. **Key Length Determination**: Using the Index of Coincidence to find the most likely key length
