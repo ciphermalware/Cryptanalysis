@@ -1,6 +1,6 @@
 # Vigenère Cipher Breaker
 
-## What's This All About?
+## What's this all about?
 It's interesting that the Vigenère cipher was considered unbreakable for centuries, but today we can crack it using frequency analysis techniques. This project demonstrates how we can break Vigenère encryption without knowing the key.
 
 This repo includes:
