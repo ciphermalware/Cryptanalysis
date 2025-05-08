@@ -17,22 +17,7 @@ This repository contains three main components:
 - Decryption with known keys
 - Brute-force decryption to demonstrate the cipher's vulnerability
 
-Run it with:
-```bash
-python3 Caesar.py
-```
-
-## Interactive HTML Version
-
-The HTML version (`caesar_cipher.html`) offers an intuitive interface to:
-- Encrypt any text with adjustable shift values
-- See decryption in real-time
-- Test brute force attacks against the cipher
-- Experiment with edge cases (nonEnglish characters, numbers, symbols)
-
-Simply open the HTML file in any web browser to use the interactive tool.
 
 
-## Author
 
-Created by @ciphermalware
+
