@@ -1,1 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DES Cipher by @ciphermalware</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        h1 span {
+            font-size: 18px;
+            font-weight: normal;
+            color: #666;
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        h3 {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #444;
+        }
+        textarea, input {
+            margin: 8px 0;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: monospace;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .result {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 3px;
+            min-height: 20px;
+            word-break: break-all;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .visualization {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: white;
+        }
+        button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #3b78e7;
+        }
+        select {
+            padding: 8px;
+            margin: 8px 0;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .format-option {
+            display: inline-block;
+            margin-right: 15px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+        .bits-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-family: monospace;
+            text-align: center;
+        }
+        .bits-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .bits-table th {
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .key-bit {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            border: 1px solid #aaa;
+            margin: 2px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .key-bit.parity {
+            background-color: #f8f8f8;
+            color: #999;
+        }
+        .round-box {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #f9f9f9;
+            border-radius: 3px;
+        }
+        .round-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .tab-navigation {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            margin-bottom: -1px;
+            background-color: #f8f8f8;
+        }
+        .tab.active {
+            border-color: #ddd;
+            background-color: white;
+            border-bottom-color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .attack-status {
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #fffde7;
+            border-left: 4px solid #ffc107;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-value {
+            height: 100%;
+            background-color: #4285f4;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .animation-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .block {
+            width: 80px;
+            height: 80px;
+            margin: 10px;
+            background-color: #e0f7fa;
+            border: 1px solid #4dd0e1;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: monospace;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .arrow {
+            width: 30px;
+            height: 20px;
+            position: relative;
+        }
+        .arrow:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #999;
+        }
+        .arrow:before {
+            content: '';
+            position: absolute;
+            top: 25%;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            border-top: 2px solid #999;
+            border-right: 2px solid #999;
+            transform: rotate(45deg);
+        }
+        .key-block {
+            background-color: #fff8e1;
+            border-color: #ffca28;
+        }
+        .function-block {
+            background-color: #e8f5e9;
+            border-color: #66bb6a;
+        }
+        .xor-block {
+            background-color: #f3e5f5;
+            border-color: #ab47bc;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .edge-cases {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .edge-case {
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            .edge-cases {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>DES Cipher <span>by @ciphermalware</span></h1>
+    
+    <div class="tab-navigation">
+        <div class="tab active" data-tab="encryption">Encryption / Decryption</div>
+        <div class="tab" data-tab="visualization">DES Visualization</div>
+        <div class="tab" data-tab="attack">Attack Simulation</div>
+    </div>
+    
+    <div class="tab-content active" id="encryption-tab">
+        <div class="container">
+            <h2>Encryption / Decryption with DES</h2>
+            
+            <div class="form-group">
+                <label for="mode">Operation Mode:</label>
+                <select id="mode">
+                    <option value="encrypt">Encrypt</option>
+                    <option value="decrypt">Decrypt</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="input-format">Input Format:</label>
+                <div>
+                    <label class="format-option"><input type="radio" name="input-format" value="text" checked> Text</label>
+                    <label class="format-option"><input type="radio" name="input-format" value="hex"> Hex</label>
+                    <label class="format-option"><input type="radio" name="input-format" value="base64"> Base64</label>
+                </div>
+            </div>
 
+            <div class="form-group">
+                <label for="input-text">Input:</label>
+                <textarea id="input-text" rows="4">This is a secret message for DES encryption.</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="key">DES Key (8 bytes / 64 bits):</label>
+                <input type="text" id="key" value="SECRET!?">
+                <div>
+                    <small>Note: DES uses 8 bytes (64 bits), but only 56 bits are effective (every 8th bit is a parity bit).</small>
+                </div>
+                <div id="key-bits" class="visualization" style="display: none;">
+                    <!-- Key bits visualization will be generated here -->
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="cipher-mode">Cipher Mode:</label>
+                <select id="cipher-mode">
+                    <option value="ecb">ECB (Electronic Codebook)</option>
+                    <option value="cbc">CBC (Cipher Block Chaining)</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="iv-group" style="display: none;">
+                <label for="iv">Initialization Vector (IV):</label>
+                <input type="text" id="iv" value="VECTOR12">
+                <div>
+                    <small>Required for CBC mode. 8 bytes (64 bits).</small>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="output-format">Output Format:</label>
+                <div>
+                    <label class="format-option"><input type="radio" name="output-format" value="hex" checked> Hex</label>
+                    <label class="format-option"><input type="radio" name="output-format" value="base64"> Base64</label>
+                    <label class="format-option"><input type="radio" name="output-format" value="text"> Text (may display unusable characters)</label>
+                </div>
+            </div>
+            
+            <button id="process-btn">Process</button>
+            <div id="error-message" class="error" style="display: none;"></div>
+            
+            <div class="form-group">
+                <label for="result">Result:</label>
+                <div id="result" class="result"></div>
+                <div>
+                    <button id="copy-result" style="background-color: #5f6368;">Copy Result</button>
+                    <button id="use-as-input" style="background-color: #5f6368;">Use as Input</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <h2>Test Examples</h2>
+            <div class="edge-cases">
+                <button class="edge-case" data-text="Hello, DES encryption world!" data-key="SECRET!!" data-mode="encrypt">Encrypt Simple Text</button>
+                <button class="edge-case" data-text="55f83e1e0e6f3ecc8ea9286d298a9c74c924cfbc1c372b29" data-key="SECRET!!" data-mode="decrypt" data-format="hex">Decrypt Simple Hex</button>
+                <button class="edge-case" data-text="The DES algorithm was published in 1977." data-key="WEAK-KEY" data-mode="encrypt">Encrypt with Weak Key</button>
+                <button class="edge-case" data-text="This is a message for CBC mode test." data-key="CBC-TEST" data-mode="encrypt" data-cipher-mode="cbc" data-iv="12345678">CBC Mode Encryption</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content" id="visualization-tab">
+        <div class="container">
+            <h2>DES Algorithm Visualization</h2>
+            
+            <div class="form-group">
+                <label for="viz-plaintext">Plaintext Block (8 bytes):</label>
+                <input type="text" id="viz-plaintext" value="ABCDEFGH">
+                <small>8 characters for a single DES block.</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="viz-key">Key (8 bytes):</label>
+                <input type="text" id="viz-key" value="KEY-DES!">
+                <small>8 characters for the DES key.</small>
+            </div>
+            
+            <button id="visualize-btn">Visualize DES Encryption</button>
+            
+            <div id="visualization-area" class="visualization">
+                <h3>Initial Permutation</h3>
+                <div class="animation-container">
+                    <div class="block" id="initial-block">Plaintext</div>
+                    <div class="arrow"></div>
+                    <div class="block" id="ip-block">IP</div>
+                </div>
+                
+                <div id="rounds-visualization">
+                    <!-- Rounds will be generated here -->
+                </div>
+                
+                <h3>Final Permutation</h3>
+                <div class="animation-container">
+                    <div class="block" id="pre-final-block">Pre-Final</div>
+                    <div class="arrow"></div>
+                    <div class="block" id="final-block">Ciphertext</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content" id="attack-tab">
+        <div class="container">
+            <h2>DES Attack Simulation</h2>
+            
+            <div class="form-group">
+                <label for="attack-type">Attack Type:</label>
+                <select id="attack-type">
+                    <option value="brute">Brute Force Attack</option>
+                    <option value="weak">Weak Key Detection</option>
+                    <option value="known">Known Plaintext Attack</option>
+                </select>
+            </div>
+            
+            <div id="brute-force-options">
+                <div class="form-group">
+                    <label for="key-space">Key Space Limitations:</label>
+                    <select id="key-space">
+                        <option value="charset">Limited Character Set</option>
+                        <option value="prefix">Fixed Prefix</option>
+                        <option value="pattern">Pattern-Based</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="charset-group">
+                    <label for="charset">Character Set:</label>
+                    <input type="text" id="charset" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ">
+                </div>
+                
+                <div class="form-group" id="prefix-group" style="display: none;">
+                    <label for="prefix">Fixed Prefix:</label>
+                    <input type="text" id="prefix" value="SECRET">
+                </div>
+                
+                <div class="form-group" id="pattern-group" style="display: none;">
+                    <label for="pattern">Pattern:</label>
+                    <input type="text" id="pattern" value="XXXX1234">
+                    <small>Use X for variable positions, other characters will be fixed.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="max-attempts">Maximum Attempts (for Demo):</label>
+                    <select id="max-attempts">
+                        <option value="100">100 keys</option>
+                        <option value="1000">1,000 keys</option>
+                        <option value="10000" selected>10,000 keys</option>
+                        <option value="100000">100,000 keys</option>
+                    </select>
+                    <small>Note: This is a simulation. Real brute force would try up to 2^56 keys.</small>
+                </div>
+            </div>
+            
+            <div id="known-plaintext-options" style="display: none;">
+                <div class="form-group">
+                    <label for="known-plaintext">Known Plaintext:</label>
+                    <input type="text" id="known-plaintext" value="This is a known plaintext for the attack.">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="target-ciphertext">Target Ciphertext:</label>
+                <textarea id="target-ciphertext" rows="3"></textarea>
+                <div>
+                    <label class="format-option"><input type="radio" name="target-format" value="hex" checked> Hex</label>
+                    <label class="format-option"><input type="radio" name="target-format" value="base64"> Base64</label>
+                </div>
+            </div>
+            
+            <button id="generate-target-btn">Generate Sample Target</button>
+            <button id="start-attack-btn">Start Attack Simulation</button>
+            
+            <div id="attack-status" class="attack-status" style="display: none;">
+                <div id="attack-message">Preparing attack simulation...</div>
+                <div class="progress-bar">
+                    <div id="attack-progress" class="progress-value"></div>
+                </div>
+            </div>
+            
+            <div id="attack-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        function base64ToBytes(base64) {
+            try {
+                const binary = atob(base64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+                return bytes;
+            } catch (e) {
+                console.error("Invalid base64:", e);
+                return new Uint8Array(0);
+            }
+        }
+        
+        function bytesToBase64(bytes) {
+            let binary = '';
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+        
+        function hexToBytes(hex) {
+            hex = hex.replace(/\s/g, '');
+            if (hex.length % 2 !== 0) {
+                hex = '0' + hex;
+            }
+            
+            const byteArray = new Uint8Array(hex.length / 2);
+            for (let i = 0; i < hex.length; i += 2) {
+                const byteValue = parseInt(hex.substr(i, 2), 16);
+                if (isNaN(byteValue)) {
+                    console.error(`Invalid hex at position ${i}: ${hex.substr(i, 2)}`);
+                    return new Uint8Array(0);
+                }
+                byteArray[i/2] = byteValue;
+            }
+            return byteArray;
+        }
+        
+        function bytesToHex(bytes) {
+            return Array.from(bytes)
+                .map(byte => byte.toString(16).padStart(2, '0'))
+                .join('');
+        }
+        
+        function textToBytes(text) {
+            const encoder = new TextEncoder();
+            return encoder.encode(text);
+        }
+        
+        function bytesToText(bytes) {
+            const decoder = new TextDecoder();
+            return decoder.decode(bytes);
+        }
+        
+        function pad(data, blockSize) {
+            const padLength = blockSize - (data.length % blockSize);
+            const paddedData = new Uint8Array(data.length + padLength);
+            paddedData.set(data);
+            
+            for (let i = data.length; i < paddedData.length; i++) {
+                paddedData[i] = padLength;
+            }
+            
+            return paddedData;
+        }
+        
+        function unpad(data) {
+            const paddingLength = data[data.length - 1];
+            
+            if (paddingLength > data.length) {
+                throw new Error("Invalid padding");
+            }
+            
+            for (let i = data.length - paddingLength; i < data.length; i++) {
+                if (data[i] !== paddingLength) {
+                    throw new Error("Invalid padding");
+                }
+            }
+            
+            return data.slice(0, data.length - paddingLength);
+        }
+        
+        const IP = [58, 50, 42, 34, 26, 18, 10, 2,
+                   60, 52, 44, 36, 28, 20, 12, 4,
+                   62, 54, 46, 38, 30, 22, 14, 6,
+                   64, 56, 48, 40, 32, 24, 16, 8,
+                   57, 49, 41, 33, 25, 17, 9, 1,
+                   59, 51, 43, 35, 27, 19, 11, 3,
+                   61, 53, 45, 37, 29, 21, 13, 5,
+                   63, 55, 47, 39, 31, 23, 15, 7];
+                   
+        const FP = [40, 8, 48, 16, 56, 24, 64, 32,
+                   39, 7, 47, 15, 55, 23, 63, 31,
+                   38, 6, 46, 14, 54, 22, 62, 30,
+                   37, 5, 45, 13, 53, 21, 61, 29,
+                   36, 4, 44, 12, 52, 20, 60, 28,
+                   35, 3, 43, 11, 51, 19, 59, 27,
+                   34, 2, 42, 10, 50, 18, 58, 26,
+                   33, 1, 41, 9, 49, 17, 57, 25];
+        
+        const DES_WEAK_KEYS = [
+            "0101010101010101",
+            "FEFEFEFEFEFEFEFE",
+            "1F1F1F1F0E0E0E0E",
+            "E0E0E0E0F1F1F1F1"
+        ];
+        
+        function isWeakKey(key) {
+            if (typeof key === 'string') {
+                const hexKey = bytesToHex(textToBytes(key));
+                return DES_WEAK_KEYS.includes(hexKey);
+            }
+            return false;
+        }
+        
+        function simulatedDESEncrypt(plaintext, key, mode = 'ecb', iv = null) {
+            if (typeof plaintext === 'string') {
+                plaintext = textToBytes(plaintext);
+            }
+            
+            if (typeof key === 'string') {
+                key = textToBytes(key);
+            }
+            
+            if (key.length !== 8) {
+                throw new Error("DES key must be exactly 8 bytes (64 bits)");
+            }
+            
+            const paddedPlaintext = pad(plaintext, 8);
+            
+            let ivBytes = null;
+            if (mode === 'cbc') {
+                if (!iv) {
+                    throw new Error("CBC mode requires an initialization vector");
+                }
+                
+                if (typeof iv === 'string') {
+                    ivBytes = textToBytes(iv);
+                } else {
+                    ivBytes = iv;
+                }
+                
+                if (ivBytes.length !== 8) {
+                    throw new Error("IV must be exactly 8 bytes (64 bits)");
+                }
+            }
+            
+            const ciphertext = new Uint8Array(paddedPlaintext.length);
+            let previousBlock = ivBytes;
+            
+            for (let i = 0; i < paddedPlaintext.length; i += 8) {
+                const block = paddedPlaintext.slice(i, i + 8);
+                
+                if (mode === 'cbc') {
+                    for (let j = 0; j < 8; j++) {
+                        block[j] ^= previousBlock[j];
+                    }
+                }
+                
+                const encryptedBlock = new Uint8Array(8);
+                for (let j = 0; j < 8; j++) {
+                    encryptedBlock[j] = (block[j] + key[j]) % 256 ^ key[(j+1) % 8];
+                }
+                
+                ciphertext.set(encryptedBlock, i);
+                
+                if (mode === 'cbc') {
+                    previousBlock = encryptedBlock;
+                }
+            }
+            
+            return ciphertext;
+        }
+        
+        function simulatedDESDecrypt(ciphertext, key, mode = 'ecb', iv = null) {
+            if (typeof ciphertext === 'string') {
+                ciphertext = textToBytes(ciphertext);
+            }
+            
+            if (typeof key === 'string') {
+                key = textToBytes(key);
+            }
+            
+            if (key.length !== 8) {
+                throw new Error("DES key must be exactly 8 bytes (64 bits)");
+            }
+            
+            if (ciphertext.length % 8 !== 0) {
+                throw new Error("Ciphertext length must be a multiple of 8 bytes");
+            }
+            
+            let ivBytes = null;
+            if (mode === 'cbc') {
+                if (!iv) {
+                    throw new Error("CBC mode requires an initialization vector");
+                }
+                
+                if (typeof iv === 'string') {
+                    ivBytes = textToBytes(iv);
+                } else {
+                    ivBytes = iv;
+                }
+                
+                if (ivBytes.length !== 8) {
+                    throw new Error("IV must be exactly 8 bytes (64 bits)");
+                }
+            }
+            
+            const plaintext = new Uint8Array(ciphertext.length);
+            
+            for (let i = 0; i < ciphertext.length; i += 8) {
+                const block = ciphertext.slice(i, i + 8);
+                
+                const decryptedBlock = new Uint8Array(8);
+                for (let j = 0; j < 8; j++) {
+                    decryptedBlock[j] = (block[j] ^ key[(j+1) % 8] - key[j] + 256) % 256;
+                }
+                
+                if (mode === 'cbc') {
+                    const previousBlock = i === 0 ? ivBytes : ciphertext.slice(i - 8, i);
+                    for (let j = 0; j < 8; j++) {
+                        decryptedBlock[j] ^= previousBlock[j];
+                    }
+                }
+                
+                plaintext.set(decryptedBlock, i);
+            }
+            
+            try {
+                return unpad(plaintext);
+            } catch (e) {
+                console.error("Error unpadding:", e);
+                return plaintext;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(this.dataset.tab + '-tab').classList.add('active');
+                });
+            });
+            
+            const inputTextEl = document.getElementById('input-text');
+            const keyEl = document.getElementById('key');
+            const ivEl = document.getElementById('iv');
+            const resultEl = document.getElementById('result');
+            const processBtn = document.getElementById('process-btn');
+            const copyResultBtn = document.getElementById('copy-result');
+            const useAsInputBtn = document.getElementById('use-as-input');
+            const errorMessageEl = document.getElementById('error-message');
+            const cipherModeEl = document.getElementById('cipher-mode');
+            const ivGroupEl = document.getElementById('iv-group');
+            const keyBitsEl = document.getElementById('key-bits');
+            
+            cipherModeEl.addEventListener('change', function() {
+                ivGroupEl.style.display = this.value === 'cbc' ? 'block' : 'none';
+            });
+            
+            keyEl.addEventListener('input', function() {
+                visualizeKeyBits(this.value);
+            });
+            
+            visualizeKeyBits(keyEl.value);
+            
+            function visualizeKeyBits(key) {
+                keyBitsEl.style.display = 'block';
+                keyBitsEl.innerHTML = '<h3>Key Bits Visualization</h3>';
+                
+                const keyBytes = typeof key === 'string' ? textToBytes(key) : key;
+                const bits = document.createElement('div');
+                
+                for (let i = 0; i < Math.min(keyBytes.length, 8); i++) {
+                    const byte = keyBytes[i];
+                    const byteBits = document.createElement('div');
+                    byteBits.style.marginBottom = '5px';
+                    
+                    for (let j = 7; j >= 0; j--) {
+                        const bit = (byte >> j) & 1;
+                        const bitEl = document.createElement('span');
+                        bitEl.className = 'key-bit' + (j === 0 ? ' parity' : '');
+                        bitEl.textContent = bit;
+                        byteBits.appendChild(bitEl);
+                    }
+                    
+                    bits.appendChild(byteBits);
+                }
+                
+                keyBitsEl.appendChild(bits);
+                
+                if (isWeakKey(key)) {
+                    const weakKeyWarning = document.createElement('div');
+                    weakKeyWarning.className = 'error';
+                    weakKeyWarning.textContent = 'Warning: This is a known weak DES key!';
+                    keyBitsEl.appendChild(weakKeyWarning);
+                }
+            }
+            
+            processBtn.addEventListener('click', function() {
+                try {
+                    errorMessageEl.style.display = 'none';
+                    
+                    const mode = document.getElementById('mode').value;
+                    const inputFormat = document.querySelector('input[name="input-format"]:checked').value;
+                    const outputFormat = document.querySelector('input[name="output-format"]:checked').value;
+                    const cipherMode = cipherModeEl.value;
+                    
+                    let inputData;
+                    if (inputFormat === 'text') {
+                        inputData = inputTextEl.value;
+                    } else if (inputFormat === 'hex') {
+                        inputData = hexToBytes(inputTextEl.value);
+                    } else if (inputFormat === 'base64') {
+                        inputData = base64ToBytes(inputTextEl.value);
+                    }
+                    
+                    const key = keyEl.value;
+                    
+                    const iv = cipherMode === 'cbc' ? ivEl.value : null;
+                    
+                    let result;
+                    
+                    if (mode === 'encrypt') {
+                        result = simulatedDESEncrypt(inputData, key, cipherMode, iv);
+                    } else {
+                        result = simulatedDESDecrypt(inputData, key, cipherMode, iv);
+                    }
+                    
+                    let formattedResult;
+                    if (outputFormat === 'text') {
+                        try {
+                            formattedResult = bytesToText(result);
+                        } catch (e) {
+                            formattedResult = result;
+                        }
+                    } else if (outputFormat === 'hex') {
+                        formattedResult = bytesToHex(result);
+                    } else if (outputFormat === 'base64') {
+                        formattedResult = bytesToBase64(result);
+                    }
+                    
+                    resultEl.textContent = formattedResult;
+                } catch (e) {
+                    errorMessageEl.textContent = 'Error: ' + e.message;
+                    errorMessageEl.style.display = 'block';
+                }
+            });
+            
+            copyResultBtn.addEventListener('click', function() {
+                const text = resultEl.textContent;
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        const originalText = copyResultBtn.textContent;
+                        copyResultBtn.textContent = 'Copied!';
+                        setTimeout(() => {
+                            copyResultBtn.textContent = originalText;
+                        }, 1500);
+                    })
+                    .catch(err => {
+                        console.error('Error copying text: ', err);
+                    });
+            });
+            
+            useAsInputBtn.addEventListener('click', function() {
+                const text = resultEl.textContent;
+                inputTextEl.value = text;
+                
+                const outputFormat = document.querySelector('input[name="output-format"]:checked').value;
+                document.querySelectorAll('input[name="input-format"]').forEach(radio => {
+                    if (radio.value === outputFormat) {
+                        radio.checked = true;
+                    }
+                });
+                
+                const currentMode = document.getElementById('mode').value;
+                document.getElementById('mode').value = currentMode === 'encrypt' ? 'decrypt' : 'encrypt';
+            });
+            
+            const edgeCases = document.querySelectorAll('.edge-case');
+            edgeCases.forEach(button => {
+                button.addEventListener('click', function() {
+                    const text = this.dataset.text;
+                    const key = this.dataset.key;
+                    const mode = this.dataset.mode || 'encrypt';
+                    const format = this.dataset.format || 'text';
+                    const cipherMode = this.dataset.cipherMode || 'ecb';
+                    const iv = this.dataset.iv || null;
+                    
+                    inputTextEl.value = text;
+                    
+                    document.querySelectorAll('input[name="input-format"]').forEach(radio => {
+                        if (radio.value === format) {
+                            radio.checked = true;
+                        }
+                    });
+                    
+                    cipherModeEl.value = cipherMode;
+                    ivGroupEl.style.display = cipherMode === 'cbc' ? 'block' : 'none';
+                    
+                    if (iv) {
+                        ivEl.value = iv;
+                    }
+                    
+                    document.getElementById('mode').value = mode;
+                    
+                    keyEl.value = key;
+                    
+                    visualizeKeyBits(key);
+                    
+                    processBtn.click();
+                });
+            });
+            
+            const visualizeBtn = document.getElementById('visualize-btn');
+            const vizPlaintextEl = document.getElementById('viz-plaintext');
+            const vizKeyEl = document.getElementById('viz-key');
+            const roundsVisualizationEl = document.getElementById('rounds-visualization');
+            
+            visualizeBtn.addEventListener('click', function() {
+                const plaintext = vizPlaintextEl.value;
+                const key = vizKeyEl.value;
+                
+                if (plaintext.length !== 8 || key.length !== 8) {
+                    alert('Both plaintext and key must be exactly 8 characters for this visualization');
+                    return;
+                }
+                
+                document.getElementById('initial-block').textContent = plaintext;
+                
+                roundsVisualizationEl.innerHTML = '';
+                
+                const subkeys = [];
+                for (let i = 0; i < 16; i++) {
+                    const subkey = new Uint8Array(8);
+                    const keyBytes = textToBytes(key);
+                    for (let j = 0; j < 8; j++) {
+                        subkey[j] = (keyBytes[j] + i) % 256;
+                    }
+                    subkeys.push(subkey);
+                }
+                
+                let left = textToBytes(plaintext.substring(0, 4));
+                let right = textToBytes(plaintext.substring(4, 8));
+                
+                for (let round = 0; round < 16; round++) {
+                    const roundDiv = document.createElement('div');
+                    roundDiv.className = 'round-box';
+                    
+                    const roundTitle = document.createElement('div');
+                    roundTitle.className = 'round-title';
+                    roundTitle.textContent = `Round ${round + 1}`;
+                    roundDiv.appendChild(roundTitle);
+                    
+                    const roundContent = document.createElement('div');
+                    roundContent.className = 'animation-container';
+                    
+                    const leftBlock = document.createElement('div');
+                    leftBlock.className = 'block';
+                    leftBlock.textContent = bytesToText(left);
+                    roundContent.appendChild(leftBlock);
+                    
+                    const rightBlock = document.createElement('div');
+                    rightBlock.className = 'block';
+                    rightBlock.textContent = bytesToText(right);
+                    roundContent.appendChild(rightBlock);
+                    
+                    roundContent.appendChild(document.createElement('br'));
+                    
+                    const arrowDown = document.createElement('div');
+                    arrowDown.style.width = '20px';
+                    arrowDown.style.height = '20px';
+                    arrowDown.style.margin = '0 auto';
+                    arrowDown.style.borderLeft = '2px solid #999';
+                    arrowDown.style.borderBottom = '2px solid #999';
+                    arrowDown.style.transform = 'rotate(-45deg)';
+                    roundContent.appendChild(arrowDown);
+                    
+                    const fBlock = document.createElement('div');
+                    fBlock.className = 'block function-block';
+                    fBlock.textContent = 'F';
+                    
+                    const keyBlock = document.createElement('div');
+                    keyBlock.className = 'block key-block';
+                    keyBlock.textContent = `K${round+1}`;
+                    
+                    const xorBlock = document.createElement('div');
+                    xorBlock.className = 'block xor-block';
+                    xorBlock.textContent = '⊕';
+                    
+                    const newRight = new Uint8Array(4);
+                    for (let i = 0; i < 4; i++) {
+                        newRight[i] = left[i] ^ ((right[i] + subkeys[round][i]) % 256);
+                    }
+                    
+                    const newLeft = right;
+                    
+                    left = newLeft;
+                    right = newRight;
+                    
+                    const newLeftBlock = document.createElement('div');
+                    newLeftBlock.className = 'block';
+                    newLeftBlock.textContent = bytesToText(left);
+                    
+                    const newRightBlock = document.createElement('div');
+                    newRightBlock.className = 'block';
+                    newRightBlock.textContent = bytesToText(right);
+                    
+                    roundDiv.appendChild(roundContent);
+                    roundsVisualizationEl.appendChild(roundDiv);
+                }
+                
+                document.getElementById('pre-final-block').textContent = bytesToText(new Uint8Array([...left, ...right]));
+                
+                const ciphertext = simulatedDESEncrypt(plaintext, key);
+                document.getElementById('final-block').textContent = bytesToText(ciphertext);
+            });
+            
+            const attackTypeEl = document.getElementById('attack-type');
+            const bruteForceOptionsEl = document.getElementById('brute-force-options');
+            const knownPlaintextOptionsEl = document.getElementById('known-plaintext-options');
+            const keySpaceEl = document.getElementById('key-space');
+            const charsetGroupEl = document.getElementById('charset-group');
+            const prefixGroupEl = document.getElementById('prefix-group');
+            const patternGroupEl = document.getElementById('pattern-group');
+            const generateTargetBtn = document.getElementById('generate-target-btn');
+            const startAttackBtn = document.getElementById('start-attack-btn');
+            const targetCiphertextEl = document.getElementById('target-ciphertext');
+            const attackStatusEl = document.getElementById('attack-status');
+            const attackMessageEl = document.getElementById('attack-message');
+            const attackProgressEl = document.getElementById('attack-progress');
+            const attackResultEl = document.getElementById('attack-result');
+            
+            attackTypeEl.addEventListener('change', function() {
+                bruteForceOptionsEl.style.display = this.value === 'brute' ? 'block' : 'none';
+                knownPlaintextOptionsEl.style.display = this.value === 'known' ? 'block' : 'none';
+            });
+            
+            keySpaceEl.addEventListener('change', function() {
+                charsetGroupEl.style.display = this.value === 'charset' ? 'block' : 'none';
+                prefixGroupEl.style.display = this.value === 'prefix' ? 'block' : 'none';
+                patternGroupEl.style.display = this.value === 'pattern' ? 'block' : 'none';
+            });
+            
+            generateTargetBtn.addEventListener('click', function() {
+                let plaintext, key;
+                
+                if (attackTypeEl.value === 'known') {
+                    plaintext = document.getElementById('known-plaintext').value;
+                    key = "TARGET!?";
+                } else if (attackTypeEl.value === 'weak') {
+                    plaintext = "This message was encrypted with a weak DES key.";
+                    key = String.fromCharCode(0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01);
+                } else {
+                    plaintext = "This is a sample message for the brute force attack.";
+                    key = "SECRET!?";
+                }
+                
+                const ciphertext = simulatedDESEncrypt(plaintext, key);
+                
+                const targetFormat = document.querySelector('input[name="target-format"]:checked').value;
+                let formattedCiphertext;
+                
+                if (targetFormat === 'hex') {
+                    formattedCiphertext = bytesToHex(ciphertext);
+                } else if (targetFormat === 'base64') {
+                    formattedCiphertext = bytesToBase64(ciphertext);
+                }
+                
+                targetCiphertextEl.value = formattedCiphertext;
+            });
+            
+            startAttackBtn.addEventListener('click', function() {
+                const attackType = attackTypeEl.value;
+                const targetFormat = document.querySelector('input[name="target-format"]:checked').value;
+                
+                let targetCiphertext;
+                if (targetFormat === 'hex') {
+                    targetCiphertext = hexToBytes(targetCiphertextEl.value);
+                } else if (targetFormat === 'base64') {
+                    targetCiphertext = base64ToBytes(targetCiphertextEl.value);
+                }
+                
+                if (!targetCiphertext || targetCiphertext.length === 0) {
+                    alert('Please provide valid target ciphertext');
+                    return;
+                }
+                
+                attackStatusEl.style.display = 'block';
+                attackResultEl.style.display = 'none';
+                attackProgressEl.style.width = '0%';
+                
+                if (attackType === 'brute') {
+                    simulateBruteForceAttack(targetCiphertext);
+                } else if (attackType === 'weak') {
+                    simulateWeakKeyAttack(targetCiphertext);
+                } else if (attackType === 'known') {
+                    const knownPlaintext = document.getElementById('known-plaintext').value;
+                    simulateKnownPlaintextAttack(targetCiphertext, knownPlaintext);
+                }
+            });
+            
+            function simulateBruteForceAttack(targetCiphertext) {
+                attackMessageEl.textContent = 'Starting brute force attack simulation...';
+                
+                const maxAttempts = parseInt(document.getElementById('max-attempts').value);
+                const keySpace = keySpaceEl.value;
+                
+                let keyGenerator;
+                if (keySpace === 'charset') {
+                    const charset = document.getElementById('charset').value;
+                    keyGenerator = generateKeysFromCharset(charset);
+                } else if (keySpace === 'prefix') {
+                    const prefix = document.getElementById('prefix').value;
+                    keyGenerator = generateKeysWithPrefix(prefix);
+                } else if (keySpace === 'pattern') {
+                    const pattern = document.getElementById('pattern').value;
+                    keyGenerator = generateKeysFromPattern(pattern);
+                }
+                
+                let attemptCount = 0;
+                let foundKey = null;
+                const startTime = Date.now();
+                
+                function tryNextBatch() {
+                    const batchSize = 100;
+                    let found = false;
+                    
+                    for (let i = 0; i < batchSize && attemptCount < maxAttempts; i++) {
+                        const key = keyGenerator.next().value;
+                        attemptCount++;
+                        
+                        try {
+                            const decrypted = simulatedDESDecrypt(targetCiphertext, key);
+                            const decryptedText = bytesToText(decrypted);
+                            
+                            const isPrintable = isPrintableASCII(decryptedText);
+                            if (isPrintable) {
+                                foundKey = key;
+                                found = true;
+                                break;
+                            }
+                        } catch (e) {
+                        }
+                        
+                        const progress = (attemptCount / maxAttempts) * 100;
+                        attackProgressEl.style.width = progress + '%';
+                        
+                        if (attemptCount % 500 === 0) {
+                            attackMessageEl.textContent = `Tried ${attemptCount} keys (${Math.round(progress)}%)...`;
+                        }
+                    }
+                    
+                    if (found || attemptCount >= maxAttempts) {
+                        const elapsedTime = (Date.now() - startTime) / 1000;
+                        attackProgressEl.style.width = '100%';
+                        
+                        if (foundKey) {
+                            attackMessageEl.textContent = `Key found after ${attemptCount} attempts (${elapsedTime.toFixed(2)} seconds)!`;
+                            displayAttackResult(targetCiphertext, foundKey);
+                        } else {
+                            attackMessageEl.textContent = `Attack completed: Key not found after ${maxAttempts} attempts (${elapsedTime.toFixed(2)} seconds).`;
+                            attackResultEl.style.display = 'block';
+                            attackResultEl.innerHTML = `<strong>Attack completed</strong><br>
+                                                      Key not found after ${maxAttempts} attempts.<br>
+                                                      Note: In a real attack, all 2^56 possible keys would be tried.`;
+                        }
+                    } else {
+                        setTimeout(tryNextBatch, 0);
+                    }
+                }
+                
+                setTimeout(tryNextBatch, 0);
+            }
+            
+            function simulateWeakKeyAttack(targetCiphertext) {
+                attackMessageEl.textContent = 'Starting weak key attack simulation...';
+                
+                setTimeout(() => {
+                    let found = false;
+                    
+                    for (let i = 0; i < DES_WEAK_KEYS.length; i++) {
+                        const progress = ((i + 1) / DES_WEAK_KEYS.length) * 100;
+                        attackProgressEl.style.width = progress + '%';
+                        
+                        const weakKey = hexToBytes(DES_WEAK_KEYS[i]);
+                        
+                        try {
+                            const decrypted = simulatedDESDecrypt(targetCiphertext, weakKey);
+                            const decryptedText = bytesToText(decrypted);
+                            
+                            const isPrintable = isPrintableASCII(decryptedText);
+                            if (isPrintable) {
+                                attackMessageEl.textContent = `Weak key found! (${DES_WEAK_KEYS[i]})`;
+                                displayAttackResult(targetCiphertext, weakKey);
+                                found = true;
+                                break;
+                            }
+                        } catch (e) {
+                        }
+                    }
+                    
+                    if (!found) {
+                        attackMessageEl.textContent = 'Attack completed: No weak key found.';
+                        attackProgressEl.style.width = '100%';
+                        attackResultEl.style.display = 'block';
+                        attackResultEl.innerHTML = `<strong>Attack completed</strong><br>
+                                                  The target was not encrypted with a known weak DES key.`;
+                    }
+                }, 500);
+            }
+            
+            function simulateKnownPlaintextAttack(targetCiphertext, knownPlaintext) {
+                attackMessageEl.textContent = 'Starting known plaintext attack simulation...';
+                
+                const maxAttempts = parseInt(document.getElementById('max-attempts').value);
+                
+                const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+';
+                const keyGenerator = generateKeysFromCharset(charset);
+                
+                const plaintextBytes = textToBytes(knownPlaintext);
+                
+                let attemptCount = 0;
+                let foundKey = null;
+                const startTime = Date.now();
+                
+                function tryNextBatch() {
+                    const batchSize = 100;
+                    let found = false;
+                    
+                    for (let i = 0; i < batchSize && attemptCount < maxAttempts; i++) {
+                        const key = keyGenerator.next().value;
+                        attemptCount++;
+                        
+                        try {
+                            const encrypted = simulatedDESEncrypt(plaintextBytes, key);
+                            
+                            let matches = true;
+                            for (let j = 0; j < Math.min(8, encrypted.length, targetCiphertext.length); j++) {
+                                if (encrypted[j] !== targetCiphertext[j]) {
+                                    matches = false;
+                                    break;
+                                }
+                            }
+                            
+                            if (matches) {
+                                foundKey = key;
+                                found = true;
+                                break;
+                            }
+                        } catch (e) {
+                        }
+                        
+                        const progress = (attemptCount / maxAttempts) * 100;
+                        attackProgressEl.style.width = progress + '%';
+                        
+                        if (attemptCount % 500 === 0) {
+                            attackMessageEl.textContent = `Tried ${attemptCount} keys (${Math.round(progress)}%)...`;
+                        }
+                    }
+                    
+                    if (found || attemptCount >= maxAttempts) {
+                        const elapsedTime = (Date.now() - startTime) / 1000;
+                        attackProgressEl.style.width = '100%';
+                        
+                        if (foundKey) {
+                            attackMessageEl.textContent = `Key found after ${attemptCount} attempts (${elapsedTime.toFixed(2)} seconds)!`;
+                            displayAttackResult(targetCiphertext, foundKey);
+                        } else {
+                            attackMessageEl.textContent = `Attack completed: Key not found after ${maxAttempts} attempts (${elapsedTime.toFixed(2)} seconds).`;
+                            attackResultEl.style.display = 'block';
+                            attackResultEl.innerHTML = `<strong>Attack completed</strong><br>
+                                                      Key not found after ${maxAttempts} attempts.<br>
+                                                      Note: In a real known-plaintext attack, more sophisticated approaches would be used.`;
+                        }
+                    } else {
+                        setTimeout(tryNextBatch, 0);
+                    }
+                }
+                
+                setTimeout(tryNextBatch, 0);
+            }
+            
+            function displayAttackResult(ciphertext, key) {
+                try {
+                    const decrypted = simulatedDESDecrypt(ciphertext, key);
+                    const decryptedText = bytesToText(decrypted);
+                    
+                    attackResultEl.style.display = 'block';
+                    attackResultEl.innerHTML = `
+                        <strong>Attack Successful!</strong><br>
+                        <strong>Found Key:</strong> "${key}"<br>
+                        <strong>Key (Hex):</strong> ${bytesToHex(key)}<br><br>
+                        <strong>Decrypted Message:</strong><br>
+                        ${decryptedText.replace(/[^\x20-\x7E]/g, '·')}
+                    `;
+                } catch (e) {
+                    attackResultEl.style.display = 'block';
+                    attackResultEl.innerHTML = `
+                        <strong>Attack Successful!</strong><br>
+                        <strong>Found Key:</strong> "${key}"<br>
+                        <strong>Key (Hex):</strong> ${bytesToHex(key)}<br><br>
+                        <strong>Error decrypting with found key:</strong> ${e.message}
+                    `;
+                }
+            }
+            
+            function isPrintableASCII(text) {
+                const printableCount = Array.from(text).filter(char => char.charCodeAt(0) >= 32 && char.charCodeAt(0) <= 126).length;
+                return printableCount / text.length > 0.8;
+            }
+            
+            function* generateKeysFromCharset(charset) {
+                for (let i = 0; i < charset.length; i++) {
+                    for (let j = 0; j < charset.length; j++) {
+                        for (let k = 0; k < charset.length; k++) {
+                            for (let l = 0; l < charset.length; l++) {
+                                const key = charset[i] + charset[j] + charset[k] + charset[l] + "1234";
+                                yield key;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            function* generateKeysWithPrefix(prefix) {
+                const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                const remainingLength = 8 - prefix.length;
+                
+                if (remainingLength <= 0) {
+                    yield prefix.substring(0, 8);
+                    return;
+                }
+                
+                for (let i = 0; i < charset.length; i++) {
+                    for (let j = 0; j < charset.length; j++) {
+                        const key = prefix + charset[i] + charset[j] + "123456".substring(0, remainingLength - 2);
+                        yield key;
+                    }
+                }
+            }
+            
+            function* generateKeysFromPattern(pattern) {
+                const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                const positions = [];
+                
+                for (let i = 0; i < pattern.length; i++) {
+                    if (pattern[i].toUpperCase() === 'X') {
+                        positions.push(i);
+                    }
+                }
+                
+                const combinations = Math.pow(charset.length, positions.length);
+                for (let i = 0; i < combinations; i++) {
+                    let key = pattern;
+                    let index = i;
+                    
+                    for (let j = 0; j < positions.length; j++) {
+                        const charIndex = index % charset.length;
+                        index = Math.floor(index / charset.length);
+                        
+                        key = key.substring(0, positions[j]) + charset[charIndex] + key.substring(positions[j] + 1);
+                    }
+                    
+                    yield key.substring(0, 8);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
