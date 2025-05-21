@@ -1,1 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RC4 Cipher by @ciphermalware</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        h1 span {
+            font-size: 18px;
+            font-weight: normal;
+            color: #666;
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        h3 {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #444;
+        }
+        textarea, input {
+            margin: 8px 0;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: monospace;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .result {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 3px;
+            min-height: 20px;
+            word-break: break-all;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .visualization {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: white;
+        }
+        button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #3b78e7;
+        }
+        select {
+            padding: 8px;
+            margin: 8px 0;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .format-option {
+            display: inline-block;
+            margin-right: 15px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+        .byte-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-family: monospace;
+            text-align: center;
+        }
+        .byte-table td {
+            border: 1px solid #ddd;
+            padding: 4px;
+            width: 30px;
+            height: 30px;
+        }
+        .byte-table th {
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            padding: 4px;
+        }
+        .s-box-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        .key-byte {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            border: 1px solid #aaa;
+            margin: 2px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .round-box {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #f9f9f9;
+            border-radius: 3px;
+        }
+        .round-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .tab-navigation {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            margin-bottom: -1px;
+            background-color: #f8f8f8;
+        }
+        .tab.active {
+            border-color: #ddd;
+            background-color: white;
+            border-bottom-color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .attack-status {
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #fffde7;
+            border-left: 4px solid #ffc107;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-value {
+            height: 100%;
+            background-color: #4285f4;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .animation-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .block {
+            width: 80px;
+            height: 80px;
+            margin: 10px;
+            background-color: #e0f7fa;
+            border: 1px solid #4dd0e1;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: monospace;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .arrow {
+            width: 30px;
+            height: 20px;
+            position: relative;
+        }
+        .arrow:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #999;
+        }
+        .arrow:before {
+            content: '';
+            position: absolute;
+            top: 25%;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            border-top: 2px solid #999;
+            border-right: 2px solid #999;
+            transform: rotate(45deg);
+        }
+        .key-block {
+            background-color: #fff8e1;
+            border-color: #ffca28;
+        }
+        .function-block {
+            background-color: #e8f5e9;
+            border-color: #66bb6a;
+        }
+        .xor-block {
+            background-color: #f3e5f5;
+            border-color: #ab47bc;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .edge-cases {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .edge-case {
+            width: 100%;
+        }
+        .byte-viz {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            font-family: monospace;
+            border: 1px solid #ddd;
+            margin: 2px;
+            background-color: #f5f5f5;
+        }
+        .byte-viz.active {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+        .attack-info {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffca28;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .bias-chart {
+            height: 150px;
+            margin: 15px 0;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        .bias-bar {
+            display: inline-block;
+            width: 3px;
+            margin-right: 1px;
+            background-color: #2196f3;
+            position: relative;
+        }
+        @media (max-width: 600px) {
+            .edge-cases {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>RC4 Cipher <span>by @ciphermalware</span></h1>
+    
+    <div class="tab-navigation">
+        <div class="tab active" data-tab="encryption">Encryption / Decryption</div>
+        <div class="tab" data-tab="visualization">RC4 Visualization</div>
+        <div class="tab" data-tab="attack">Attack Simulation</div>
+    </div>
+    
+    <div class="tab-content active" id="encryption-tab">
+        <div class="container">
+            <h2>Encryption / Decryption with RC4</h2>
+            
+            <div class="form-group">
+                <label for="mode">Operation Mode:</label>
+                <select id="mode">
+                    <option value="encrypt">Encrypt</option>
+                    <option value="decrypt">Decrypt</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="input-format">Input Format:</label>
+                <div>
+                    <label class="format-option"><input type="radio" name="input-format" value="text" checked> Text</label>
+                    <label class="format-option"><input type="radio" name="input-format" value="hex"> Hex</label>
+                    <label class="format-option"><input type="radio" name="input-format" value="base64"> Base64</label>
+                </div>
+            </div>
 
+            <div class="form-group">
+                <label for="input-text">Input:</label>
+                <textarea id="input-text" rows="4">This is a secret message for RC4 encryption.</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="key">RC4 Key:</label>
+                <input type="text" id="key" value="SECRET">
+                <div>
+                    <small>RC4 can use variable-length keys (typically 5-16 bytes). Longer keys are generally more secure.</small>
+                </div>
+                <div id="key-bytes" class="visualization" style="display: none;">
+                    <!-- Key bytes visualization will be generated here -->
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="output-format">Output Format:</label>
+                <div>
+                    <label class="format-option"><input type="radio" name="output-format" value="hex" checked> Hex</label>
+                    <label class="format-option"><input type="radio" name="output-format" value="base64"> Base64</label>
+                    <label class="format-option"><input type="radio" name="output-format" value="text"> Text (may display unusable characters)</label>
+                </div>
+            </div>
+            
+            <button id="process-btn">Process</button>
+            <div id="error-message" class="error" style="display: none;"></div>
+            
+            <div class="form-group">
+                <label for="result">Result:</label>
+                <div id="result" class="result"></div>
+                <div>
+                    <button id="copy-result" style="background-color: #5f6368;">Copy Result</button>
+                    <button id="use-as-input" style="background-color: #5f6368;">Use as Input</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <h2>Test Examples</h2>
+            <div class="edge-cases">
+                <button class="edge-case" data-text="Hello, RC4 encryption world!" data-key="SECRET" data-mode="encrypt">Encrypt Simple Text</button>
+                <button class="edge-case" data-text="2923be84e16cd6ae529049f1f1bbe9ebb3a6db3c2f31" data-key="SECRET" data-mode="decrypt" data-format="hex">Decrypt Simple Hex</button>
+                <button class="edge-case" data-text="The RC4 algorithm was designed by Ron Rivest in 1987." data-key="WEAK" data-mode="encrypt">Encrypt with Short Key</button>
+                <button class="edge-case" data-text="RC4 was used in protocols like WEP and SSL/TLS." data-key="RC4-TEST-LONGER-KEY" data-mode="encrypt">Encrypt with Longer Key</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content" id="visualization-tab">
+        <div class="container">
+            <h2>RC4 Algorithm Visualization</h2>
+            
+            <div class="form-group">
+                <label for="viz-plaintext">Plaintext:</label>
+                <input type="text" id="viz-plaintext" value="HELLO">
+                <small>Up to 16 characters for better visualization.</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="viz-key">Key:</label>
+                <input type="text" id="viz-key" value="KEY">
+                <small>RC4 can use keys of any length, but typically 5-16 bytes are used.</small>
+            </div>
+            
+            <button id="visualize-btn">Visualize RC4 Process</button>
+            
+            <div id="visualization-area" class="visualization">
+                <h3>Step 1: Key Scheduling Algorithm (KSA)</h3>
+                <div class="s-box-container">
+                    <table class="byte-table" id="ksa-table">
+                        <tr>
+                            <th colspan="16">S-Box Initialization</th>
+                        </tr>
+                        <tr>
+                            <td>00</td><td>01</td><td>02</td><td>03</td><td>04</td><td>05</td><td>06</td><td>07</td>
+                            <td>08</td><td>09</td><td>0A</td><td>0B</td><td>0C</td><td>0D</td><td>0E</td><td>0F</td>
+                        </tr>
+                        <!-- More rows will be added dynamically -->
+                    </table>
+                </div>
+                
+                <h3>Step 2: Pseudo-Random Generation Algorithm (PRGA)</h3>
+                <div id="prga-steps">
+                    <!-- PRGA steps will be generated here -->
+                </div>
+                
+                <h3>Step 3: Encryption Result</h3>
+                <div class="animation-container">
+                    <div class="block" id="plaintext-block">Plaintext</div>
+                    <div class="arrow"></div>
+                    <div class="block xor-block">⊕</div>
+                    <div class="arrow"></div>
+                    <div class="block" id="ciphertext-block">Ciphertext</div>
+                </div>
+                
+                <div id="byte-visualization">
+                    <div class="plaintext-bytes">
+                        <h4>Plaintext bytes:</h4>
+                        <div id="plaintext-bytes"></div>
+                    </div>
+                    <div class="keystream-bytes">
+                        <h4>Keystream bytes:</h4>
+                        <div id="keystream-bytes"></div>
+                    </div>
+                    <div class="ciphertext-bytes">
+                        <h4>Ciphertext bytes (Plaintext ⊕ Keystream):</h4>
+                        <div id="ciphertext-bytes"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content" id="attack-tab">
+        <div class="container">
+            <h2>RC4 Attack Simulation</h2>
+            
+            <div class="form-group">
+                <label for="attack-type">Attack Type:</label>
+                <select id="attack-type">
+                    <option value="fluhrer">Fluhrer-McGrew-Mantin Attack</option>
+                    <option value="wep">WEP Attack</option>
+                    <option value="bias">Keystream Bias Analysis</option>
+                </select>
+            </div>
+            
+            <div id="fluhrer-attack-options">
+                <div class="attack-info">
+                    <p>The Fluhrer-McGrew-Mantin attack exploits weaknesses in RC4's key scheduling algorithm, particularly when used with specific initialization vectors (IVs) in protocols like WEP.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="known-prefix">Known Plaintext Prefix (optional):</label>
+                    <input type="text" id="known-prefix" placeholder="HTTP/1.1 ">
+                    <small>Many protocols have known headers that help with attacks.</small>
+                </div>
+            </div>
+            
+            <div id="wep-attack-options" style="display: none;">
+                <div class="attack-info">
+                    <p>The WEP attack exploits weaknesses in the WEP protocol's implementation of RC4, particularly with how IVs are used.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="iv-count">Number of IVs to simulate:</label>
+                    <select id="iv-count">
+                        <option value="10000">10,000 IVs</option>
+                        <option value="40000" selected>40,000 IVs</option>
+                        <option value="100000">100,000 IVs</option>
+                    </select>
+                    <small>In real attacks, about 40,000-60,000 IVs are typically needed for a successful attack.</small>
+                </div>
+            </div>
+            
+            <div id="bias-attack-options" style="display: none;">
+                <div class="attack-info">
+                    <p>RC4 keystreams have statistical biases that can be exploited after analyzing large amounts of ciphertext.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bias-samples">Number of samples to analyze:</label>
+                    <select id="bias-samples">
+                        <option value="100000">100,000 samples</option>
+                        <option value="1000000" selected>1,000,000 samples</option>
+                        <option value="10000000">10,000,000 samples</option>
+                    </select>
+                    <small>For demonstration only. Real attacks would use billions of samples.</small>
+                </div>
+                
+                <div class="bias-chart" id="bias-chart">
+                    <!-- Bias visualization will be generated here -->
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="target-ciphertext">Target Ciphertext:</label>
+                <textarea id="target-ciphertext" rows="3"></textarea>
+                <div>
+                    <label class="format-option"><input type="radio" name="target-format" value="hex" checked> Hex</label>
+                    <label class="format-option"><input type="radio" name="target-format" value="base64"> Base64</label>
+                </div>
+            </div>
+            
+            <button id="generate-target-btn">Generate Sample Target</button>
+            <button id="start-attack-btn">Start Attack Simulation</button>
+            
+            <div id="attack-status" class="attack-status" style="display: none;">
+                <div id="attack-message">Preparing attack simulation...</div>
+                <div class="progress-bar">
+                    <div id="attack-progress" class="progress-value"></div>
+                </div>
+            </div>
+            
+            <div id="attack-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        function base64ToBytes(base64) {
+            try {
+                const binary = atob(base64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+                return bytes;
+            } catch (e) {
+                console.error("Invalid base64:", e);
+                return new Uint8Array(0);
+            }
+        }
+        
+        function bytesToBase64(bytes) {
+            let binary = '';
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+        
+        function hexToBytes(hex) {
+            hex = hex.replace(/\s/g, '');
+            if (hex.length % 2 !== 0) {
+                hex = '0' + hex;
+            }
+            
+            const byteArray = new Uint8Array(hex.length / 2);
+            for (let i = 0; i < hex.length; i += 2) {
+                const byteValue = parseInt(hex.substr(i, 2), 16);
+                if (isNaN(byteValue)) {
+                    console.error(`Invalid hex at position ${i}: ${hex.substr(i, 2)}`);
+                    return new Uint8Array(0);
+                }
+                byteArray[i/2] = byteValue;
+            }
+            return byteArray;
+        }
+        
+        function bytesToHex(bytes) {
+            return Array.from(bytes)
+                .map(byte => byte.toString(16).padStart(2, '0'))
+                .join('');
+        }
+        
+        function textToBytes(text) {
+            const encoder = new TextEncoder();
+            return encoder.encode(text);
+        }
+        
+        function bytesToText(bytes) {
+            const decoder = new TextDecoder();
+            return decoder.decode(bytes);
+        }
+        
+        function rc4KeyScheduling(key) {
+            if (typeof key === 'string') {
+                key = textToBytes(key);
+            }
+            
+            const keyLength = key.length;
+            const S = Array.from(Array(256).keys());
+            let j = 0;
+            
+            for (let i = 0; i < 256; i++) {
+                j = (j + S[i] + key[i % keyLength]) & 0xFF;
+                [S[i], S[j]] = [S[j], S[i]];
+            }
+            
+            return S;
+        }
+        
+        function rc4GenerateKeystream(S, length) {
+            const keystream = new Uint8Array(length);
+            let i = 0;
+            let j = 0;
+            
+            for (let k = 0; k < length; k++) {
+                i = (i + 1) & 0xFF;
+                j = (j + S[i]) & 0xFF;
+                
+                [S[i], S[j]] = [S[j], S[i]];
+                
+                const t = (S[i] + S[j]) & 0xFF;
+                keystream[k] = S[t];
+            }
+            
+            return keystream;
+        }
+        
+        function rc4Process(input, key) {
+            if (typeof input === 'string') {
+                input = textToBytes(input);
+            }
+            
+            if (typeof key === 'string') {
+                key = textToBytes(key);
+            }
+            
+            const S = rc4KeyScheduling(key);
+            const keystream = rc4GenerateKeystream(S, input.length);
+            
+            const output = new Uint8Array(input.length);
+            for (let i = 0; i < input.length; i++) {
+                output[i] = input[i] ^ keystream[i];
+            }
+            
+            return {
+                output,
+                keystream,
+                S
+            };
+        }
+
+        function rc4Encrypt(plaintext, key) {
+            return rc4Process(plaintext, key).output;
+        }
+        
+        function rc4Decrypt(ciphertext, key) {
+            return rc4Process(ciphertext, key).output;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(this.dataset.tab + '-tab').classList.add('active');
+                });
+            });
+            
+            const inputTextEl = document.getElementById('input-text');
+            const keyEl = document.getElementById('key');
+            const resultEl = document.getElementById('result');
+            const processBtn = document.getElementById('process-btn');
+            const copyResultBtn = document.getElementById('copy-result');
+            const useAsInputBtn = document.getElementById('use-as-input');
+            const errorMessageEl = document.getElementById('error-message');
+            const keyBytesEl = document.getElementById('key-bytes');
+            
+            keyEl.addEventListener('input', function() {
+                visualizeKeyBytes(this.value);
+            });
+            
+            visualizeKeyBytes(keyEl.value);
+            
+            function visualizeKeyBytes(key) {
+                keyBytesEl.style.display = 'block';
+                keyBytesEl.innerHTML = '<h3>Key Bytes Visualization</h3>';
+                
+                const keyBytes = typeof key === 'string' ? textToBytes(key) : key;
+                const bytesDiv = document.createElement('div');
+                
+                for (let i = 0; i < keyBytes.length; i++) {
+                    const byteEl = document.createElement('span');
+                    byteEl.className = 'byte-viz';
+                    byteEl.textContent = keyBytes[i].toString(16).padStart(2, '0');
+                    bytesDiv.appendChild(byteEl);
+                }
+                
+                keyBytesEl.appendChild(bytesDiv);
+                
+                if (keyBytes.length < 5) {
+                    const warningEl = document.createElement('div');
+                    warningEl.className = 'error';
+                    warningEl.textContent = 'Warning: Short keys (less than 5 bytes) are generally insecure for RC4!';
+                    keyBytesEl.appendChild(warningEl);
+                }
+            }
+            
+            processBtn.addEventListener('click', function() {
+                try {
+                    errorMessageEl.style.display = 'none';
+                    
+                    const mode = document.getElementById('mode').value;
+                    const inputFormat = document.querySelector('input[name="input-format"]:checked').value;
+                    const outputFormat = document.querySelector('input[name="output-format"]:checked').value;
+                    
+                    let inputData;
+                    if (inputFormat === 'text') {
+                        inputData = inputTextEl.value;
+                    } else if (inputFormat === 'hex') {
+                        inputData = hexToBytes(inputTextEl.value);
+                    } else if (inputFormat === 'base64') {
+                        inputData = base64ToBytes(inputTextEl.value);
+                    }
+                    
+                    const key = keyEl.value;
+                    
+                    let result;
+                    
+                    if (mode === 'encrypt') {
+                        result = rc4Encrypt(inputData, key);
+                    } else {
+                        result = rc4Decrypt(inputData, key);
+                    }
+                    
+                    let formattedResult;
+                    if (outputFormat === 'text') {
+                        try {
+                            formattedResult = bytesToText(result);
+                        } catch (e) {
+                            formattedResult = result;
+                        }
+                    } else if (outputFormat === 'hex') {
+                        formattedResult = bytesToHex(result);
+                    } else if (outputFormat === 'base64') {
+                        formattedResult = bytesToBase64(result);
+                    }
+                    
+                    resultEl.textContent = formattedResult;
+                } catch (e) {
+                    errorMessageEl.textContent = 'Error: ' + e.message;
+                    errorMessageEl.style.display = 'block';
+                }
+            });
+            
+            copyResultBtn.addEventListener('click', function() {
+                const text = resultEl.textContent;
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        const originalText = copyResultBtn.textContent;
+                        copyResultBtn.textContent = 'Copied!';
+                        setTimeout(() => {
+                            copyResultBtn.textContent = originalText;
+                        }, 1500);
+                    })
+                    .catch(err => {
+                        console.error('Error copying text: ', err);
+                    });
+            });
+            
+            useAsInputBtn.addEventListener('click', function() {
+                const text = resultEl.textContent;
+                inputTextEl.value = text;
+                
+                const outputFormat = document.querySelector('input[name="output-format"]:checked').value;
+                document.querySelectorAll('input[name="input-format"]').forEach(radio => {
+                    if (radio.value === outputFormat) {
+                        radio.checked = true;
+                    }
+                });
+                
+                const currentMode = document.getElementById('mode').value;
+                document.getElementById('mode').value = currentMode === 'encrypt' ? 'decrypt' : 'encrypt';
+            });
+            
+            const edgeCases = document.querySelectorAll('.edge-case');
+            edgeCases.forEach(button => {
+                button.addEventListener('click', function() {
+                    const text = this.dataset.text;
+                    const key = this.dataset.key;
+                    const mode = this.dataset.mode || 'encrypt';
+                    const format = this.dataset.format || 'text';
+                    
+                    inputTextEl.value = text;
+                    
+                    document.querySelectorAll('input[name="input-format"]').forEach(radio => {
+                        if (radio.value === format) {
+                            radio.checked = true;
+                        }
+                    });
+                    
+                    document.getElementById('mode').value = mode;
+                    
+                    keyEl.value = key;
+                    
+                    visualizeKeyBytes(key);
+                    
+                    processBtn.click();
+                });
+            });
+            
+            const visualizeBtn = document.getElementById('visualize-btn');
+            const vizPlaintextEl = document.getElementById('viz-plaintext');
+            const vizKeyEl = document.getElementById('viz-key');
+            
+            visualizeBtn.addEventListener('click', function() {
+                const plaintext = vizPlaintextEl.value;
+                const key = vizKeyEl.value;
+                
+                if (plaintext.length === 0 || key.length === 0) {
+                    alert('Please provide both plaintext and key for visualization');
+                    return;
+                }
+                
+                visualizeRC4(plaintext, key);
+            });
+            
+            function visualizeRC4(plaintext, key) {
+                const plaintextBytes = textToBytes(plaintext);
+                const keyBytes = textToBytes(key);
+                
+                document.getElementById('plaintext-block').textContent = plaintext;
+                
+                const ksaTable = document.getElementById('ksa-table');
+                ksaTable.innerHTML = '<tr><th colspan="16">S-Box Initialization</th></tr>';
+                
+                const S = Array.from(Array(256).keys());
+                
+                let rowCount = Math.ceil(256 / 16);
+                for (let row = 0; row < rowCount; row++) {
+                    const tr = document.createElement('tr');
+                    for (let col = 0; col < 16; col++) {
+                        const index = row * 16 + col;
+                        if (index < 256) {
+                            const td = document.createElement('td');
+                            td.textContent = index.toString(16).padStart(2, '0');
+                            tr.appendChild(td);
+                        }
+                    }
+                    ksaTable.appendChild(tr);
+                }
+                
+                let j = 0;
+                for (let i = 0; i < 256; i++) {
+                    j = (j + S[i] + keyBytes[i % keyBytes.length]) & 0xFF;
+                    [S[i], S[j]] = [S[j], S[i]];
+                }
+                
+                const prgaStepsEl = document.getElementById('prga-steps');
+                prgaStepsEl.innerHTML = '<p>Generating keystream bytes:</p>';
+                
+                const prgaTable = document.createElement('table');
+                prgaTable.className = 'byte-table';
+                
+                const headerRow = document.createElement('tr');
+                const headerCell = document.createElement('th');
+                headerCell.colSpan = 4;
+                headerCell.textContent = 'PRGA Steps';
+                headerRow.appendChild(headerCell);
+                prgaTable.appendChild(headerRow);
+                
+                const labelsRow = document.createElement('tr');
+                ['Byte #', 'i', 'j', 'Output Byte'].forEach(label => {
+                    const th = document.createElement('th');
+                    th.textContent = label;
+                    labelsRow.appendChild(th);
+                });
+                prgaTable.appendChild(labelsRow);
+                
+                const localS = [...S];
+                let i = 0;
+                j = 0;
+                
+                const keystream = [];
+                
+                for (let n = 0; n < plaintextBytes.length; n++) {
+                    i = (i + 1) & 0xFF;
+                    j = (j + localS[i]) & 0xFF;
+                    
+                    [localS[i], localS[j]] = [localS[j], localS[i]];
+                    
+                    const t = (localS[i] + localS[j]) & 0xFF;
+                    const keyByte = localS[t];
+                    keystream.push(keyByte);
+                    
+                    const row = document.createElement('tr');
+                    
+                    const byteNumCell = document.createElement('td');
+                    byteNumCell.textContent = n;
+                    row.appendChild(byteNumCell);
+                    
+                    const iCell = document.createElement('td');
+                    iCell.textContent = i.toString(16).padStart(2, '0');
+                    row.appendChild(iCell);
+                    
+                    const jCell = document.createElement('td');
+                    jCell.textContent = j.toString(16).padStart(2, '0');
+                    row.appendChild(jCell);
+                    
+                    const outputByteCell = document.createElement('td');
+                    outputByteCell.textContent = keyByte.toString(16).padStart(2, '0');
+                    row.appendChild(outputByteCell);
+                    
+                    prgaTable.appendChild(row);
+                }
+                
+                prgaStepsEl.appendChild(prgaTable);
+                
+                const ciphertext = rc4Encrypt(plaintext, key);
+                document.getElementById('ciphertext-block').textContent = bytesToText(ciphertext);
+                
+                const plaintextBytesEl = document.getElementById('plaintext-bytes');
+                const keystreamBytesEl = document.getElementById('keystream-bytes');
+                const ciphertextBytesEl = document.getElementById('ciphertext-bytes');
+                
+                plaintextBytesEl.innerHTML = '';
+                keystreamBytesEl.innerHTML = '';
+                ciphertextBytesEl.innerHTML = '';
+                
+                for (let i = 0; i < plaintextBytes.length; i++) {
+                    const pByte = document.createElement('span');
+                    pByte.className = 'byte-viz';
+                    pByte.textContent = plaintextBytes[i].toString(16).padStart(2, '0');
+                    plaintextBytesEl.appendChild(pByte);
+                    
+                    const kByte = document.createElement('span');
+                    kByte.className = 'byte-viz';
+                    kByte.textContent = keystream[i].toString(16).padStart(2, '0');
+                    keystreamBytesEl.appendChild(kByte);
+                    
+                    const cByte = document.createElement('span');
+                    cByte.className = 'byte-viz';
+                    cByte.textContent = ciphertext[i].toString(16).padStart(2, '0');
+                    ciphertextBytesEl.appendChild(cByte);
+                }
+            }
+            
+            const attackTypeEl = document.getElementById('attack-type');
+            const fluhrerOptionsEl = document.getElementById('fluhrer-attack-options');
+            const wepOptionsEl = document.getElementById('wep-attack-options');
+            const biasOptionsEl = document.getElementById('bias-attack-options');
+            const generateTargetBtn = document.getElementById('generate-target-btn');
+            const startAttackBtn = document.getElementById('start-attack-btn');
+            const targetCiphertextEl = document.getElementById('target-ciphertext');
+            const attackStatusEl = document.getElementById('attack-status');
+            const attackMessageEl = document.getElementById('attack-message');
+            const attackProgressEl = document.getElementById('attack-progress');
+            const attackResultEl = document.getElementById('attack-result');
+            
+            attackTypeEl.addEventListener('change', function() {
+                fluhrerOptionsEl.style.display = this.value === 'fluhrer' ? 'block' : 'none';
+                wepOptionsEl.style.display = this.value === 'wep' ? 'block' : 'none';
+                biasOptionsEl.style.display = this.value === 'bias' ? 'block' : 'none';
+                
+                if (this.value === 'bias') {
+                    visualizeBiases();
+                }
+            });
+            
+            function visualizeBiases() {
+                const biasChartEl = document.getElementById('bias-chart');
+                biasChartEl.innerHTML = '';
+                
+                const knownBiases = [
+                    { byte: 0, position: 0, probability: 0.008 },
+                    { byte: 0, position: 1, probability: 0.0 },
+                    { byte: 0, position: 2, probability: 0.013 },
+                    { byte: 240, position: 2, probability: 0.003 },
+                    { byte: 166, position: 2, probability: 0.003 },
+                    { byte: 1, position: 16, probability: 0.005 }
+                ];
+                
+                const width = biasChartEl.clientWidth;
+                const height = biasChartEl.clientHeight;
+                
+                for (let i = 0; i < 256; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'bias-bar';
+                    
+                    let barHeight = 0.001 * height;
+                    
+                    for (const bias of knownBiases) {
+                        if (bias.byte === i) {
+                            barHeight = bias.probability * 8000;
+                        }
+                    }
+                    
+                    bar.style.height = barHeight + 'px';
+                    biasChartEl.appendChild(bar);
+                }
+            }
+            
+            generateTargetBtn.addEventListener('click', function() {
+                const attackType = attackTypeEl.value;
+                let plaintext, key;
+                
+                if (attackType === 'fluhrer') {
+                    plaintext = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n" + 
+                                "<html><body>This is a sample page for RC4 attack demonstration.</body></html>";
+                    key = "WeakRC4Key";
+                } else if (attackType === 'wep') {
+                    plaintext = "AAAA" + Array(100).fill("X").join("");
+                    key = "WEP-KEY";
+                } else if (attackType === 'bias') {
+                    plaintext = Array(100).fill("A").join("");
+                    key = "RC4-BIAS";
+                }
+                
+                const ciphertext = rc4Encrypt(plaintext, key);
+                
+                const targetFormat = document.querySelector('input[name="target-format"]:checked').value;
+                let formattedCiphertext;
+                
+                if (targetFormat === 'hex') {
+                    formattedCiphertext = bytesToHex(ciphertext);
+                } else if (targetFormat === 'base64') {
+                    formattedCiphertext = bytesToBase64(ciphertext);
+                }
+                
+                targetCiphertextEl.value = formattedCiphertext;
+            });
+            
+            startAttackBtn.addEventListener('click', function() {
+                const attackType = attackTypeEl.value;
+                const targetFormat = document.querySelector('input[name="target-format"]:checked').value;
+                
+                let targetCiphertext;
+                if (targetFormat === 'hex') {
+                    targetCiphertext = hexToBytes(targetCiphertextEl.value);
+                } else if (targetFormat === 'base64') {
+                    targetCiphertext = base64ToBytes(targetCiphertextEl.value);
+                }
+                
+                if (!targetCiphertext || targetCiphertext.length === 0) {
+                    alert('Please provide valid target ciphertext');
+                    return;
+                }
+                
+                attackStatusEl.style.display = 'block';
+                attackResultEl.style.display = 'none';
+                attackProgressEl.style.width = '0%';
+                
+                if (attackType === 'fluhrer') {
+                    simulateFluhrerAttack(targetCiphertext);
+                } else if (attackType === 'wep') {
+                    simulateWEPAttack(targetCiphertext);
+                } else if (attackType === 'bias') {
+                    simulateBiasAttack(targetCiphertext);
+                }
+            });
+            
+            function simulateFluhrerAttack(targetCiphertext) {
+                attackMessageEl.textContent = 'Starting Fluhrer-McGrew-Mantin attack simulation...';
+                
+                const knownPrefix = document.getElementById('known-prefix').value;
+                
+                setTimeout(() => {
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 10;
+                        attackProgressEl.style.width = progress + '%';
+                        
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            attackMessageEl.textContent = 'Attack simulation completed!';
+                            
+                            const simulatedKey = "WeakRC4Key";
+                            
+                            attackResultEl.style.display = 'block';
+                            attackResultEl.innerHTML = `
+                                <strong>Attack simulation successful</strong><br>
+                                <p>In a real attack, the Fluhrer-McGrew-Mantin technique would exploit statistical biases in the RC4 keystream when used with certain initialization vectors.</p>
+                                <p>For demonstration purposes, we're showing a simulated result:</p>
+                                <br>
+                                <strong>Recovered Key:</strong> ${simulatedKey}<br>
+                                <strong>Key (Hex):</strong> ${bytesToHex(textToBytes(simulatedKey))}<br><br>
+                                <strong>Decrypted plaintext:</strong><br>
+                                <pre>${bytesToText(rc4Decrypt(targetCiphertext, simulatedKey))}</pre>
+                            `;
+                        } else {
+                            attackMessageEl.textContent = `Analyzing keystream patterns (${progress}%)...`;
+                        }
+                    }, 200);
+                }, 500);
+            }
+            
+            function simulateWEPAttack(targetCiphertext) {
+                attackMessageEl.textContent = 'Starting WEP attack simulation...';
+                
+                const ivCount = parseInt(document.getElementById('iv-count').value);
+                
+                setTimeout(() => {
+                    attackMessageEl.textContent = 'Collecting initialization vectors (IVs)...';
+                    attackProgressEl.style.width = '10%';
+                    
+                    setTimeout(() => {
+                        attackMessageEl.textContent = `Analyzing ${ivCount} IVs for weak patterns...`;
+                        attackProgressEl.style.width = '40%';
+                        
+                        setTimeout(() => {
+                            attackMessageEl.textContent = 'Applying FMS/KoreK techniques to recover key bytes...';
+                            attackProgressEl.style.width = '70%';
+                            
+                            setTimeout(() => {
+                                attackMessageEl.textContent = 'Attack simulation completed!';
+                                attackProgressEl.style.width = '100%';
+                                
+                                const simulatedKey = "WEP-KEY";
+                                
+                                attackResultEl.style.display = 'block';
+                                attackResultEl.innerHTML = `
+                                    <strong>WEP Attack Simulation Completed</strong><br>
+                                    <p>In a real WEP attack, statistical analysis of the first few bytes of encrypted packets would allow recovery of the key.</p>
+                                    <p>For demonstration purposes, we're showing a simulated result:</p>
+                                    <br>
+                                    <strong>Recovered WEP Key:</strong> ${simulatedKey}<br>
+                                    <strong>Key (Hex):</strong> ${bytesToHex(textToBytes(simulatedKey))}<br><br>
+                                    <p>This attack typically requires 40,000-60,000 IVs for a 40-bit WEP key, and about 85,000 IVs for a 104-bit key.</p>
+                                    <p>The simulation used ${ivCount} IVs.</p>
+                                `;
+                            }, 800);
+                        }, 800);
+                    }, 800);
+                }, 500);
+            }
+            
+            function simulateBiasAttack(targetCiphertext) {
+                attackMessageEl.textContent = 'Starting RC4 bias analysis...';
+                
+                const sampleCount = parseInt(document.getElementById('bias-samples').value);
+                
+                setTimeout(() => {
+                    attackMessageEl.textContent = `Generating ${sampleCount} keystream samples...`;
+                    attackProgressEl.style.width = '30%';
+                    
+                    setTimeout(() => {
+                        attackMessageEl.textContent = 'Analyzing keystream distribution patterns...';
+                        attackProgressEl.style.width = '60%';
+                        
+                        setTimeout(() => {
+                            attackMessageEl.textContent = 'Applying statistical techniques to recover plaintext...';
+                            attackProgressEl.style.width = '90%';
+                            
+                            setTimeout(() => {
+                                attackMessageEl.textContent = 'Analysis completed';
+                                attackProgressEl.style.width = '100%';
+                                
+                                const simulatedKey = "RC4-BIAS";
+                                
+                                attackResultEl.style.display = 'block';
+                                attackResultEl.innerHTML = `
+                                    <strong>RC4 Bias Analysis Completed</strong><br>
+                                    <p>RC4 has several known biases in its keystream output. These include:</p>
+                                    <ul>
+                                        <li>Bias toward zero in the second output byte</li>
+                                        <li>Positive correlation between consecutive bytes</li>
+                                        <li>First few bytes have strong biases</li>
+                                    </ul>
+                                    <p>With enough samples , these biases can be exploited to recover plaintext.</p>
+                                    <p>For demonstration purposes, we're showing a simulated result with a partial key recovery:</p>
+                                    <br>
+                                    <strong>Partially Recovered Key:</strong> ${simulatedKey}<br>
+                                    <strong>Key (Hex):</strong> ${bytesToHex(textToBytes(simulatedKey))}<br><br>
+                                    <p>This simulation analyzed ${sampleCount} keystream samples.</p>
+                                    <p>Real attacks like the BEAST, POODLE, or RC4 NOMORE would require much more data.</p>
+                                `;
+                            }, 800);
+                        }, 1000);
+                    }, 800);
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
