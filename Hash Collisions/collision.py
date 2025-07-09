@@ -21,7 +21,7 @@ def calculate_hash(data, algorithm='md5'):
     elif algorithm == 'sha512':
         return hashlib.sha512(data).hexdigest()
     else:
-        raise ValueError(f"Unsupported hash algorithm: {algorithm}")
+        
 
 def birthday_attack(algorithm='md5', max_attempts=1000000, target_bits=32):
     print(f"[*] Starting birthday attack on {algorithm.upper()}")
