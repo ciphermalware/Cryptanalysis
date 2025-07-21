@@ -12,6 +12,7 @@ def des_encrypt(plaintext, key, mode=DES.MODE_ECB):
         plaintext = plaintext.encode('utf-8')
     if isinstance(key, str):
         key = key.encode('utf-8')
+        
     
     cipher = DES.new(key, mode)
     padded_plaintext = pad(plaintext, DES.block_size)
