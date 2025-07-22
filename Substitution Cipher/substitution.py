@@ -63,10 +63,10 @@ def hill_climbing(ciphertext, ngram_scores, iterations=10000):
     best_score = score_text(decrypt(ciphertext, best_key), ngram_scores)
     
     for _ in range(iterations):
-        # Choose two random positions to swap
+       
         i, j = random.sample(range(26), 2)
         
-        # Create a new key with those positions swapped
+        
         candidate_key = swap_letters(best_key, i, j)
         
         # Decrypt and score
