@@ -14,7 +14,7 @@ def calculate_frequencies(text):
     return {char: count / total for char, count in freq.items()}
 
 def score_text(text, ngram_scores, n=2):
-    """Score text based on n-gram frequencies from english"""
+    """Score text based on n gram frequencies from english"""
     score = 0
     for i in range(len(text) - n + 1):
         ngram = text[i:i+n]
