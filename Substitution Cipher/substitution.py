@@ -69,11 +69,11 @@ def hill_climbing(ciphertext, ngram_scores, iterations=10000):
         
         candidate_key = swap_letters(best_key, i, j)
         
-        # Decrypt and score
+        
         candidate_text = decrypt(ciphertext, candidate_key)
         candidate_score = score_text(candidate_text, ngram_scores)
         
-        # If the new score is better keep the new key
+        
         if candidate_score > best_score:
             best_key = candidate_key
             best_score = candidate_score
@@ -84,24 +84,20 @@ def break_substitution_cipher(ciphertext, english_sample=None):
     """Break a substitution cipher using frequency analysis and hill climbing"""
     ciphertext = preprocess_text(ciphertext)
     
-    # If no English sample is provided, use a default one
+    
     if not english_sample:
         english_sample = """
-        The quick brown fox jumps over the lazy dog. The five boxing wizards jump quickly.
-        To be or not to be, that is the question. Four score and seven years ago our fathers 
-        brought forth on this continent a new nation, conceived in Liberty, and dedicated to 
-        the proposition that all men are created equal. Ask not what your country can do for 
-        you; ask what you can do for your country.
+        Hello World, learning about Substitution Cipher
         """
     
     ngram_scores = generate_ngram_scores(english_sample, 2)
     
-    # Run the hill climbing algorithm multiple times
+   
     best_overall_key = None
     best_overall_score = float('-inf')
     best_overall_text = None
     
-    for _ in range(5):  # Try 5 different starting points
+    for _ in range(5):  
         key, plaintext = hill_climbing(ciphertext, ngram_scores)
         
         score = score_text(plaintext, ngram_scores)
@@ -113,18 +109,18 @@ def break_substitution_cipher(ciphertext, english_sample=None):
     return best_overall_key, best_overall_text
 
 if __name__ == "__main__":
-    # Example usage
+    
     plaintext = "Hello world, this is a substitution cipher example"
     
-    # Create a random key for encryption
+   
     key = random_key()
     print(f"Original key: {key}")
     
-    # Encrypt the plaintext
+    
     ciphertext = apply_key(preprocess_text(plaintext), key)
     print(f"Ciphertext: {ciphertext}")
     
-    # Try to break the cipher
+    
     best_key, decrypted = break_substitution_cipher(ciphertext)
     print(f"Recovered key: {best_key}")
     print(f"Decrypted text: {decrypted}")
