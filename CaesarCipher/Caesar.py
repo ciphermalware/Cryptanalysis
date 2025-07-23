@@ -49,7 +49,7 @@ const CaesarCipher = () => {
   }, [plaintext, shift]);
 
   const edgeCases = [
-    { name: "Non-English Characters", text: "Hello, Привет, こんにちは, 你好!" },
+    { name: "Non-English Characters", text: "Hello, Привет" },
     { name: "Numbers and Symbols", text: "Password123!@#" },
     { name: "Empty String", text: "" },
     { name: "Very Large Shift", text: "Test", shift: 1000 },
