@@ -49,7 +49,7 @@ def break_rsa_known_factors(n, e, p, q):
 
 def common_modulus_attack(c1, c2, e1, e2, n):
     """Demonstrate common modulus attack when same message is encrypted with different exponents"""
-    # Extended euclidean algorithm 
+     
     def extended_gcd(a, b):
         if a == 0:
             return b, 0, 1
