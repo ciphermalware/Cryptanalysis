@@ -24,7 +24,7 @@ def score_english(plaintext):
         'v': 1.0, 'k': 0.8, 'j': 0.15, 'x': 0.15, 'q': 0.1, 'z': 0.07, ' ': 15.0
     }
     
-    # Common english words
+    
     common_words = [
         "the", "and", "that", "have", "for", "not", "with", "you", "this", "but", "his", "from", 
         "they", "say", "her", "she", "will", "one", "all", "would", "there", "their", "what", 
