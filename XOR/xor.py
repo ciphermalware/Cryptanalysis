@@ -6,7 +6,7 @@ from collections import Counter
 def xor_bytes(data, key):
     """XOR data with key"""
     if isinstance(key, int):
-        key = bytes([key])  # Convert single byte to bytes
+        key = bytes([key])  
     
     key_length = len(key)
     return bytes(data[i] ^ key[i % key_length] for i in range(len(data)))
