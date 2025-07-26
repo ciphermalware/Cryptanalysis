@@ -67,7 +67,7 @@ def hex_to_bytes(hex_str):
     return binascii.unhexlify(hex_str)
 
 def fluhrer_mcgrew_attack(ciphertext, known_plaintext_prefix=None, max_workers=None):
-    print("[*] Starting Fluhrer-McGrew attack simulation...")
+    print("[*] Starting Fluhrer Mcgrew attack simulation")
     if known_plaintext_prefix is None:
         known_plaintext_prefix = b""
     
