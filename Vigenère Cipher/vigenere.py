@@ -55,11 +55,11 @@ def get_key_length(ciphertext, max_length=20):
     
     avg_iocs.sort(key=lambda x: x[1], reverse=True)
     
-    # Return top 3 candidates
+   
     return [kl for kl, _ in avg_iocs[:3]]
 
 def frequency_analysis(text):
-    # Count letter frequencies
+    
     freq = {}
     for char in text.upper():
         if char.isalpha():
