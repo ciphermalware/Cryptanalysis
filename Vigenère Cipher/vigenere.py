@@ -65,7 +65,7 @@ def frequency_analysis(text):
         if char.isalpha():
             freq[char] = freq.get(char, 0) + 1
     
-    # Calculate percentages
+    
     total = sum(freq.values())
     for char in freq:
         freq[char] = freq[char] / total
