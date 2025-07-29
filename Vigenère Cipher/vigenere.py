@@ -91,7 +91,7 @@ def guess_key(ciphertext, key_length):
             if j < len(ciphertext) and ciphertext[j].isalpha():
                 column += ciphertext[j].upper()
         
-        # Calculate frequency for this column
+        
         freq = frequency_analysis(column)
         
         # Try each possible shift 
