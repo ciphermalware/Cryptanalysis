@@ -94,7 +94,7 @@ def guess_key(ciphertext, key_length):
         
         freq = frequency_analysis(column)
         
-        # Try each possible shift 
+         
         best_shift = 0
         best_chi_sq = float('inf')
         
