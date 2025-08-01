@@ -133,7 +133,7 @@ def crack_vigenere(ciphertext):
     
     return results
 
-# Example 
+ 
 if __name__ == "__main__":
     ciphertext = input("Enter Vigenère encrypted text: ")
     results = crack_vigenere(ciphertext)
